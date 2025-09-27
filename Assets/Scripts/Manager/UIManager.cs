@@ -37,9 +37,14 @@ public class UIManager : MonoBehaviour
     public GameObject stageSelectPanel;
     public GameObject gameOverPanel;
     public GameObject stageCompletePanel;
-    public GameObject settingsPanel;
 
     private bool isPaused = false;
+
+    [Header("Settings (In-Game Only)")]
+    public GameObject settingsPanel_InGame; // 인스펙터에 MainMenu의 SettingsPanel 연결
+    public Button closeButton;
+    public Button mainMenuButton;
+    public Button quitButton;
 
     void Awake()
     {
@@ -47,10 +52,15 @@ public class UIManager : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
+
+            if (settingsPanel_InGame != null)
+                DontDestroyOnLoad(settingsPanel_InGame); // [NEW] SettingsPanel도 함께 유지
+
         }
         else
         {
             Destroy(gameObject);
+            return;
         }
     }
 
@@ -58,64 +68,56 @@ public class UIManager : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            Debug.Log("ESC 감지됨");
-            // 포션 상점 먼저 닫기
+            //Debug.Log("ESC 감지됨");
+
             if (potionShopPanel != null && potionShopPanel.activeSelf)
             {
                 ClosePotionShopUI();
                 return;
             }
-
-            // 장비 상점 닫기
             if (equipmentShopPanel != null && equipmentShopPanel.activeSelf)
             {
                 CloseEquipmentShopUI();
                 return;
             }
-
-            // 퀘스트보드 닫기
             if (questBoardPanel != null && questBoardPanel.activeSelf)
             {
                 CloseQuestBoardUI();
                 return;
             }
-
-            // 인벤토리 닫기
             if (inventoryPanel != null && inventoryPanel.activeSelf)
             {
                 CloseWareHouseUI();
                 return;
             }
-
-            // 스테이지 선택 닫기
             if (stageSelectPanel != null && stageSelectPanel.activeSelf)
             {
                 CloseStageSelectUI();
                 return;
             }
 
-            // 아무 UI도 열려있지 않을 때만 설정창 토글
-            if (settingsPanel != null)
+            if (settingsPanel_InGame != null)
             {
-                var cg = settingsPanel.GetComponent<CanvasGroup>();
-                if (cg != null)
+
+                if (settingsPanel_InGame != null)
                 {
-                    if (cg.alpha > 0.5f)
-                        CloseSettings();
-                    else
-                        OpenSettings();
+                    var cg = settingsPanel_InGame.GetComponent<CanvasGroup>();
+                    if (cg == null) return;
+
+                    if (cg.alpha > 0.5f) CloseSettings();
+                    else OpenSettings();
                 }
             }
+           
         }
-
     }
 
     //카메라 초기화를 위한 메소드
     private void ResetCameraTarget()
     {
-        var cam = Camera.main.GetComponent<CameraFollow>();
+        var cam = Camera.main ? Camera.main.GetComponent<CameraFollow>() : null;
         if (cam != null)
-            cam.ResetTarget(); // CameraFollow가 플레이어와 기본 오프셋으로 되돌림
+            cam.ResetTarget();
     }
 
     //ESC로 UI를 꺼도 canMove=true로 돌리기 위한 메소드
@@ -134,9 +136,11 @@ public class UIManager : MonoBehaviour
     // ======================
     public void OpenSettings()
     {
-        if (settingsPanel != null)
+        if (settingsPanel_InGame == null) return;
+
+        if (settingsPanel_InGame != null)
         {
-            var cg = settingsPanel.GetComponent<CanvasGroup>();
+            var cg = settingsPanel_InGame.GetComponent<CanvasGroup>();
             if (cg != null)
             {
                 cg.alpha = 1f;
@@ -150,9 +154,11 @@ public class UIManager : MonoBehaviour
 
     public void CloseSettings()
     {
-        if (settingsPanel != null)
+        if (settingsPanel_InGame == null) return;
+
+        if (settingsPanel_InGame != null)
         {
-            var cg = settingsPanel.GetComponent<CanvasGroup>();
+            var cg = settingsPanel_InGame.GetComponent<CanvasGroup>();
             if (cg != null)
             {
                 cg.alpha = 0f;
@@ -163,6 +169,37 @@ public class UIManager : MonoBehaviour
             isPaused = false;
         }
     }
+    public void ReturnToMainMenu()
+    {
+        // 자동 저장
+        if (GameManager.Instance != null)
+            GameManager.Instance.SavePlayerData();
+
+        var player = GameObject.FindWithTag("Player");
+        if (player != null)
+        {
+            Destroy(player.transform.root.gameObject);
+            PlayerController.Instance = null; // 싱글톤 초기화
+        }
+
+        // 시간 재개 후 메인메뉴 로드
+        Time.timeScale = 1f;
+        SceneManager.LoadScene("MainMenu");
+    }
+
+    public void QuitGame()
+    {
+        // 자동 저장
+        if (GameManager.Instance != null)
+            GameManager.Instance.SavePlayerData();
+
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+        Application.Quit();
+#endif
+    }
+
 
     // ======================
     // Shop UI 제어
@@ -183,9 +220,7 @@ public class UIManager : MonoBehaviour
             potionShopPanel.SetActive(false);
             Time.timeScale = 1f;
         }
-        // 카메라 리셋
         ResetCameraTarget();
-        //ESC로 꺼도 canMove가 true로 돌아올 수 있도록
         RestorePlayerControl();
     }
 
@@ -205,16 +240,16 @@ public class UIManager : MonoBehaviour
             equipmentShopPanel.SetActive(false);
             Time.timeScale = 1f;
         }
-
         ResetCameraTarget();
-        //ESC로 꺼도 canMove가 true로 돌아올 수 있도록
         RestorePlayerControl();
     }
+
     public void OpenWareHouseUI()
     {
         if (inventoryPanel != null)
         {
-            equipmentShopPanel.SetActive(true);
+            // BUGFIX: 장비상점이 아니라 인벤토리 패널을 연다.
+            inventoryPanel.SetActive(true); // [FIX]
             Time.timeScale = 0f;
         }
     }
@@ -226,18 +261,9 @@ public class UIManager : MonoBehaviour
             inventoryPanel.SetActive(false);
             Time.timeScale = 1f;
         }
-
         ResetCameraTarget();
-        //ESC로 꺼도 canMove가 true로 돌아올 수 있도록
         RestorePlayerControl();
     }
-
-
-    // Portal.cs에서 참조하는 용도로 남겨둠
-    //public void OpenShopUI()
-    //{
-    //    OpenPotionShopUI();
-    //}
 
     // ======================
     // Quest / Stage
@@ -258,9 +284,7 @@ public class UIManager : MonoBehaviour
             questBoardPanel.SetActive(false);
             Time.timeScale = 1f;
         }
-
         ResetCameraTarget();
-        //ESC로 꺼도 canMove가 true로 돌아올 수 있도록
         RestorePlayerControl();
     }
 
@@ -280,9 +304,7 @@ public class UIManager : MonoBehaviour
             stageSelectPanel.SetActive(false);
             Time.timeScale = 1f;
         }
-
         ResetCameraTarget();
-        //ESC로 꺼도 canMove가 true로 돌아올 수 있도록
         RestorePlayerControl();
     }
 
@@ -328,20 +350,6 @@ public class UIManager : MonoBehaviour
     // ======================
     // Boss Health
     // ======================
-
-    // 스테이지 구현 후 추가
-    //public void ShowBossHealthBar(EnemyHealth bossHealth)
-    //{
-    //    if (bossHealthPanel != null)
-    //    {
-    //        bossHealthPanel.SetActive(true);
-    //        bossNameText.text = bossHealth.gameObject.name;
-
-    //        // 보스 체력 업데이트 이벤트 연결
-    //        bossHealth.OnHealthChanged.AddListener(UpdateBossHealthBar);
-    //    }
-    //}
-
     public void UpdateBossHealthBar(int current, int max)
     {
         if (bossHealthBar != null)
@@ -391,71 +399,115 @@ public class UIManager : MonoBehaviour
 
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        // 새 씬이 로드되면 패널 자동 재연결
         ReassignPanels();
+
+        HookupSettingsButtons();
+
+        // [NEW] 매 씬 로드시 SettingsPanel을 해당 씬의 Canvas 밑으로 이동
+        MoveSettingsPanelToActiveCanvas();
     }
 
     void ReassignPanels()
     {
-        potionShopPanel = GameObject.Find("PotionShopPanel");
-        if(potionShopPanel == null)
-        {
-            Debug.Log("PotionShopPanel을 찾지 못했습니다");
-        }
-        else
-        {
-            Debug.Log("PotionShopPanel을 찾았습니다.");
-        }
+        // 이미 연결되어 있으면 유지, 없을 때만 Find
+        if (potionShopPanel == null) potionShopPanel = GameObject.Find("PotionShopPanel");
+        if (equipmentShopPanel == null) equipmentShopPanel = GameObject.Find("EquipmentShopPanel");
+        if (questBoardPanel == null) questBoardPanel = GameObject.Find("QuestBoardPanel");
+        if (inventoryPanel == null) inventoryPanel = GameObject.Find("InventoryPanel");
+        if (stageSelectPanel == null) stageSelectPanel = GameObject.Find("StageSelectPanel");
+        if (gameOverPanel == null) gameOverPanel = GameObject.Find("GameOverPanel");
+        if (stageCompletePanel == null) stageCompletePanel = GameObject.Find("StageCompletePanel");
 
-        equipmentShopPanel = GameObject.Find("EquipmentShopPanel");
-        if (equipmentShopPanel == null)
-        {
-            Debug.Log("equipmentShopPanel 찾지 못했습니다");
-        }
-        else
-        {
-            Debug.Log("equipmentShopPanel 찾았습니다.");
-        }
+        if (settingsPanel_InGame == null) settingsPanel_InGame = GameObject.Find("SettingsPanel_InGame");
 
-        questBoardPanel = GameObject.Find("QuestBoardPanel");
-
-        inventoryPanel = GameObject.Find("InventoryPanel");
-        if (inventoryPanel == null)
+        // SettingsPanel 기본 비활성 상태(CanvasGroup 기반)로 초기화
+        if (settingsPanel_InGame != null)
         {
-            Debug.Log("InventoryPanel 찾지 못했습니다");
-        }
-        else
-        {
-            Debug.Log("InventoryPanel 찾았습니다.");
+            var cg = settingsPanel_InGame.GetComponent<CanvasGroup>();
+            if (cg == null) cg = settingsPanel_InGame.AddComponent<CanvasGroup>(); // [NEW]
+            cg.alpha = 0f;
+            cg.interactable = false;
+            cg.blocksRaycasts = false;
         }
 
-        stageSelectPanel = GameObject.Find("StageSelectPanel");
-        gameOverPanel = GameObject.Find("GameOverPanel");
-        stageCompletePanel = GameObject.Find("StageCompletePanel");
-
-        settingsPanel = GameObject.Find("SettingsPanel");
-
-        if (settingsPanel != null)
-        {
-            Debug.Log("SettingsPanel을 찾았습니다.");
-            var cg = settingsPanel.GetComponent<CanvasGroup>();
-            if (cg != null)
-            {
-                cg.alpha = 0f;
-                cg.interactable = false;
-                cg.blocksRaycasts = false;
-            }
-        }
-        
-
-        interactionPrompt = GameObject.Find("InteractionPrompt");
-        if (interactionPrompt != null)
+        if (interactionPrompt == null) interactionPrompt = GameObject.Find("InteractionPrompt");
+        if (interactionPrompt != null && interactionText == null)
             interactionText = interactionPrompt.GetComponentInChildren<TextMeshProUGUI>();
 
-        GameObject goldObj = GameObject.Find("GoldText");
-        if (goldObj != null)
-            goldText = goldObj.GetComponent<TextMeshProUGUI>();
+        if (goldText == null)
+        {
+            GameObject goldObj = GameObject.Find("GoldText");
+            if (goldObj != null) goldText = goldObj.GetComponent<TextMeshProUGUI>();
+        }
+    }
 
-        // 필요한 컴포넌트들 계속 등록
+    // [NEW] 현재 씬의 Canvas 밑으로 SettingsPanel을 재부착 (해상도 스케일 일치)
+    public void MoveSettingsPanelToActiveCanvas()
+    {
+        if (settingsPanel_InGame == null)
+        {
+            var obj = GameObject.Find("SettingsPanel_InGame"); // 씬에 있는 인게임 세팅 패널 이름
+            if (obj != null)
+            {
+                settingsPanel_InGame = obj;
+                Debug.Log("[UIManager] SettingsPanel_InGame 자동 연결됨");
+            }
+        }
+
+        if (settingsPanel_InGame != null)
+        {
+            var cg = settingsPanel_InGame.GetComponent<CanvasGroup>();
+            if (cg == null) cg = settingsPanel_InGame.AddComponent<CanvasGroup>();
+
+            cg.alpha = 0f;
+            cg.interactable = false;
+            cg.blocksRaycasts = false;
+        }
+
+
+
+        //var rt = settingsPanel_InGame.transform as RectTransform;
+        //rt.anchorMin = Vector2.zero;
+        //rt.anchorMax = Vector2.one;
+        //rt.offsetMin = Vector2.zero;
+        //rt.offsetMax = Vector2.zero;
+        //rt.localScale = Vector3.one;
+
+    }
+
+    void HookupSettingsButtons()
+    {
+        if (settingsPanel_InGame == null) return;
+
+        // 버튼 찾기
+        closeButton = settingsPanel_InGame.transform
+        .Find("ContentContainer/CloseButton")?.GetComponent<Button>();
+
+        mainMenuButton = settingsPanel_InGame.transform
+            .Find("ContentContainer/ButtonContainer/ToMainMenuButton")?.GetComponent<Button>();
+
+        quitButton = settingsPanel_InGame.transform
+            .Find("ContentContainer/ButtonContainer/QuitGameButton")?.GetComponent<Button>();
+
+        // 이벤트 연결
+        if (closeButton != null)
+        {
+            closeButton.onClick.RemoveAllListeners();
+            closeButton.onClick.AddListener(CloseSettings);
+        }
+
+        if (mainMenuButton != null)
+        {
+            mainMenuButton.onClick.RemoveAllListeners();
+            mainMenuButton.onClick.AddListener(ReturnToMainMenu);
+        }
+
+        if (quitButton != null)
+        {
+            quitButton.onClick.RemoveAllListeners();
+            quitButton.onClick.AddListener(QuitGame);
+        }
+
+        Debug.Log("[UIManager] SettingsPanel 버튼 연결 완료");
     }
 }

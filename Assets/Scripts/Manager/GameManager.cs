@@ -1,5 +1,15 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+
+[Serializable]
+public class PortalSpawnPoint
+{
+    public string portalID;   // 포탈 ID
+    public Vector3 position;  // 이동할 좌표 (월드 좌표)
+}
 
 public class GameManager : MonoBehaviour
 {
@@ -14,21 +24,25 @@ public class GameManager : MonoBehaviour
     [Header("Game Settings")]
     public bool isPaused = false;
 
-    // === 포탈 스폰 시스템 ===
-    // [NEW] 마지막으로 사용한 포탈의 고유 ID (Town에서 같은 ID의 포탈 위치로 스폰)
+    [Header("Portal Spawn System")]
     public string lastPortalID = null;
 
-    // [NEW] 장면 로드시 배치가 씬 내 오브젝트 생성 순서보다 먼저될 때를 대비한 딜레이
-    [SerializeField] private float spawnPlaceDelay = 0.02f;
+    [Tooltip("씬 로드시 약간의 대기 후 배치 (오브젝트 생성 순서 문제 방지)")]
+    [SerializeField] private float spawnPlaceDelay = 0.05f;
 
+    [Header("Portal Spawn Table (Inspector에서 설정)")]
+    public List<PortalSpawnPoint> spawnPoints = new List<PortalSpawnPoint>();
+
+
+    // ==========================
+    // Unity Events
+    // ==========================
     void Awake()
     {
         if (Instance == null)
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
-
-            // [NEW] 씬 로드 이벤트 구독
             SceneManager.sceneLoaded += OnSceneLoaded;
         }
         else
@@ -37,21 +51,28 @@ public class GameManager : MonoBehaviour
         }
     }
 
-
-
     void OnDestroy()
     {
-        // [NEW] 씬 로드 이벤트 해제
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        Debug.Log($"[GM] 씬 로드됨: {scene.name}, lastPortalID={lastPortalID}");
+        StopAllCoroutines();
+        StartCoroutine(PlacePlayerAtLastPortalAfterDelay(scene.name));
+    }
+
+
+    // ==========================
+    // Player / Gold 관리
+    // ==========================
     public int Gold => gold;
 
     public void AddGold(int amount)
     {
         gold += amount;
-        if (UIManager.Instance != null)
-            UIManager.Instance.UpdateGoldDisplay(gold);
+        UIManager.Instance?.UpdateGoldDisplay(gold);
     }
 
     public bool SpendGold(int amount)
@@ -59,16 +80,18 @@ public class GameManager : MonoBehaviour
         if (gold >= amount)
         {
             gold -= amount;
-            if (UIManager.Instance != null)
-                UIManager.Instance.UpdateGoldDisplay(gold);
+            UIManager.Instance?.UpdateGoldDisplay(gold);
             return true;
         }
         return false;
     }
 
+
+    // ==========================
+    // Stage / Game Over
+    // ==========================
     public void UnlockStage(int territoryId, int stageId, int roundId)
     {
-        // 다음 스테이지 잠금 해제 로직
         if (roundId > 3)
         {
             roundId = 1;
@@ -80,7 +103,6 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        // 진행도 저장
         if (territoryId > currentTerritory ||
             (territoryId == currentTerritory && stageId > currentStage) ||
             (territoryId == currentTerritory && stageId == currentStage && roundId > currentRound))
@@ -95,10 +117,7 @@ public class GameManager : MonoBehaviour
     public void GameOver()
     {
         Time.timeScale = 0f;
-        if (UIManager.Instance != null)
-            UIManager.Instance.ShowGameOverUI();
-        else
-            Debug.LogWarning("[GameManager] UIManager가 없어 GameOverUI 표시 불가");
+        UIManager.Instance?.ShowGameOverUI();
     }
 
     public void RestartGame()
@@ -107,16 +126,17 @@ public class GameManager : MonoBehaviour
         SceneManager.LoadScene("Town");
     }
 
+
+    // ==========================
+    // Save / Load
+    // ==========================
     public void SavePlayerData()
     {
         PlayerPrefs.SetInt("Gold", gold);
         PlayerPrefs.SetInt("CurrentTerritory", currentTerritory);
         PlayerPrefs.SetInt("CurrentStage", currentStage);
         PlayerPrefs.SetInt("CurrentRound", currentRound);
-
-        // [NEW] 마지막 포탈 ID 저장
         PlayerPrefs.SetString("LastPortalID", lastPortalID ?? "");
-
         PlayerPrefs.Save();
     }
 
@@ -126,106 +146,70 @@ public class GameManager : MonoBehaviour
         currentTerritory = PlayerPrefs.GetInt("CurrentTerritory", 1);
         currentStage = PlayerPrefs.GetInt("CurrentStage", 1);
         currentRound = PlayerPrefs.GetInt("CurrentRound", 1);
-
-        // [NEW] 마지막 포탈 ID 로드
         lastPortalID = PlayerPrefs.GetString("LastPortalID", "");
-
-        if (UIManager.Instance != null)
-            UIManager.Instance.UpdateGoldDisplay(gold);
+        UIManager.Instance?.UpdateGoldDisplay(gold);
     }
 
-    // [NEW] 포탈에서 저장: 마지막 사용 포탈의 고유 ID
+
+    // ==========================
+    // Portal Handling
+    // ==========================
     public void SetLastPortalID(string portalId)
     {
         lastPortalID = portalId;
-        Debug.Log($"[GameManager] 마지막 포탈 ID 저장: {lastPortalID}");
+        Debug.Log($"[GM] 마지막 포탈 ID 저장: {lastPortalID}");
     }
 
-    // [NEW] 씬 로드 → Town이면 같은 ID의 포탈을 찾아 그 위치에 플레이어 배치
-    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-    {
-        if (string.IsNullOrEmpty(lastPortalID))
-        {
-            Debug.Log("[GameManager] lastPortalID 비어있음 → 포지션 보정 없음");
-            return;
-        }
-        StartCoroutine(PlacePlayerAtLastPortalAfterDelay());
-    }
-
-
-    // [NEW] 실제 배치 코루틴
-    private System.Collections.IEnumerator PlacePlayerAtLastPortalAfterDelay()
+    private IEnumerator PlacePlayerAtLastPortalAfterDelay(string sceneName)
     {
         yield return null;
         yield return new WaitForSeconds(spawnPlaceDelay);
 
-        Portal[] portals = Object.FindObjectsByType<Portal>(FindObjectsSortMode.None);
-        if (portals == null || portals.Length == 0)
-        {
-            Debug.LogWarning("[GameManager] 이 씬에서 Portal을 찾지 못함");
-            yield break;
-        }
-
-        Portal target = null;
-        foreach (var p in portals)
-        {
-            if (p != null && p.portalID == lastPortalID)
-            {
-                target = p;
-                break;
-            }
-        }
-
-        if (target == null)
-        {
-            Debug.LogWarning($"[GameManager] 같은 ID 포탈({lastPortalID}) 없음");
-            yield break;
-        }
-
-        GameObject player = GameObject.FindWithTag("Player");
+        var player = GameObject.FindWithTag("Player");
         if (player == null)
         {
-            Debug.LogWarning("[GameManager] Player 태그 오브젝트를 찾지 못함");
+            Debug.LogWarning("[GM] Player 오브젝트를 찾지 못함");
             yield break;
         }
 
-        // X, Y만 이동, Z는 유지
-        Vector3 currentPos = player.transform.position;
-        Vector3 spawnPos;
-
-        if (target.spawnPoint != null)
+        if (string.IsNullOrEmpty(lastPortalID))
         {
-            spawnPos = new Vector3(
-                target.spawnPoint.position.x,
-                target.spawnPoint.position.y,
-                currentPos.z                // ← 기존 Z값 유지
-            );
+            Debug.Log("[GM] lastPortalID 없음 → 위치 보정 스킵");
+            yield break;
+        }
+
+        // === Inspector에서 미리 정의한 좌표 찾기 ===
+        PortalSpawnPoint match = spawnPoints.Find(p => p.portalID == lastPortalID);
+
+        if (match != null)
+        {
+            // 좌표 고정
+            player.transform.position = match.position;
+
+            // Rigidbody 안정화
+            if (player.TryGetComponent<Rigidbody>(out var rb))
+            {
+                rb.linearVelocity = Vector3.zero;
+                rb.angularVelocity = Vector3.zero;
+                rb.Sleep(); // 물리 시뮬레이션 완전 정지
+            }
+
+            // PlayerController 입력 잠시 차단
+            if (player.TryGetComponent<PlayerController>(out var pc))
+                StartCoroutine(FreezePlayerControl(pc, 0.1f));
+
+            Debug.Log($"[GM] '{lastPortalID}' 고정 좌표 적용 완료 → {match.position}");
         }
         else
         {
-            spawnPos = new Vector3(
-                target.transform.position.x,
-                target.transform.position.y,
-                currentPos.z                // ← 기존 Z값 유지
-            );
+            Debug.LogWarning($"[GM] '{lastPortalID}' 매핑된 좌표 없음 (씬: {sceneName})");
         }
-
-        // 회전 동기화 (선택)
-        if (target.spawnPoint != null)
-        {
-            Vector3 euler = player.transform.eulerAngles;
-            euler.y = target.spawnPoint.eulerAngles.y;
-            player.transform.eulerAngles = euler;
-        }
-
-        player.transform.position = spawnPos;
-
-        // Rigidbody 속도 제거
-        var rb = player.GetComponent<Rigidbody>();
-        if (rb != null) rb.linearVelocity = Vector3.zero;
-
-        Debug.Log($"[GameManager] '{lastPortalID}' 스폰포인트 적용 (Z 고정): {player.transform.position}");
     }
 
-
+    private IEnumerator FreezePlayerControl(PlayerController pc, float duration)
+    {
+        pc.canControl = false;
+        yield return new WaitForSeconds(duration);
+        pc.canControl = true;
+    }
 }

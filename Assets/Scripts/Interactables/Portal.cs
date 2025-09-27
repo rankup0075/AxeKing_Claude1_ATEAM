@@ -17,7 +17,7 @@ public class Portal : MonoBehaviour
     // 추가: 스폰 포인트
     [Header("Spawn Point")]
     public Transform spawnPoint;
-
+    
     public enum PortalType
     {
         SceneTransition,
