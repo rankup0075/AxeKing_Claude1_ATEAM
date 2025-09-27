@@ -273,7 +273,14 @@ public class UIManager : MonoBehaviour
         if (questBoardPanel != null)
         {
             questBoardPanel.SetActive(true);
+            var qb = questBoardPanel.GetComponent<QuestBoardUI>();
+            if (qb != null) qb.RefreshUI();
             Time.timeScale = 0f;
+            Debug.Log("[UIManager] QuestBoard 열림");
+        }
+        else
+        {
+            Debug.LogError("[UIManager] QuestBoardPanel이 null임");
         }
     }
 
@@ -321,10 +328,10 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    public void UpdateGoldDisplay(int gold)
+    public void UpdateGoldDisplay(long gold)
     {
         if (goldText != null)
-            goldText.text = $"Gold: {gold}";
+            goldText.text = $"Gold: {gold:NO}";
     }
 
     public void UpdatePotionCount(int small, int medium, int large)
@@ -419,12 +426,13 @@ public class UIManager : MonoBehaviour
         if (stageCompletePanel == null) stageCompletePanel = GameObject.Find("StageCompletePanel");
 
         if (settingsPanel_InGame == null) settingsPanel_InGame = GameObject.Find("SettingsPanel_InGame");
+        
 
         // SettingsPanel 기본 비활성 상태(CanvasGroup 기반)로 초기화
         if (settingsPanel_InGame != null)
         {
             var cg = settingsPanel_InGame.GetComponent<CanvasGroup>();
-            if (cg == null) cg = settingsPanel_InGame.AddComponent<CanvasGroup>(); // [NEW]
+            if (cg == null) cg = settingsPanel_InGame.AddComponent<CanvasGroup>();
             cg.alpha = 0f;
             cg.interactable = false;
             cg.blocksRaycasts = false;
@@ -432,14 +440,21 @@ public class UIManager : MonoBehaviour
 
         if (interactionPrompt == null) interactionPrompt = GameObject.Find("InteractionPrompt");
         if (interactionPrompt != null && interactionText == null)
-            interactionText = interactionPrompt.GetComponentInChildren<TextMeshProUGUI>();
+            interactionText = interactionPrompt.GetComponentInChildren<TMPro.TextMeshProUGUI>();
 
         if (goldText == null)
         {
             GameObject goldObj = GameObject.Find("GoldText");
-            if (goldObj != null) goldText = goldObj.GetComponent<TextMeshProUGUI>();
+            if (goldObj != null) goldText = goldObj.GetComponent<TMPro.TextMeshProUGUI>();
+        }
+
+        // [추가] QuestBoardPanel 처음 잡을 때는 꺼두기
+        if (questBoardPanel != null && questBoardPanel.activeSelf)
+        {
+            questBoardPanel.SetActive(false);
         }
     }
+
 
     // [NEW] 현재 씬의 Canvas 밑으로 SettingsPanel을 재부착 (해상도 스케일 일치)
     public void MoveSettingsPanelToActiveCanvas()
@@ -463,15 +478,6 @@ public class UIManager : MonoBehaviour
             cg.interactable = false;
             cg.blocksRaycasts = false;
         }
-
-
-
-        //var rt = settingsPanel_InGame.transform as RectTransform;
-        //rt.anchorMin = Vector2.zero;
-        //rt.anchorMax = Vector2.one;
-        //rt.offsetMin = Vector2.zero;
-        //rt.offsetMax = Vector2.zero;
-        //rt.localScale = Vector3.one;
 
     }
 

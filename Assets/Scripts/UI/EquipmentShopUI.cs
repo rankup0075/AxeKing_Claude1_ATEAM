@@ -43,7 +43,7 @@ public class EquipmentShopUI : MonoBehaviour
     public class EquipmentItem
     {
         public string itemName;
-        public int price;
+        public long price;
         public string description;
         public ItemType type;
         public int statBonus;

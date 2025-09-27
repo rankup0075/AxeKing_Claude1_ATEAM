@@ -32,7 +32,7 @@ public class PotionShopUI : MonoBehaviour
     public class Potion
     {
         public string itemName;
-        public int price;
+        public long price;
         public int potionType; // 0:소형, 1:중형, 2:대형
         public string description;
         public Sprite icon;

@@ -16,7 +16,7 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance;
 
     [Header("Player Data")]
-    public int gold = 0;
+    public long gold = 0;
     public int currentTerritory = 1;
     public int currentStage = 1;
     public int currentRound = 1;
@@ -67,20 +67,22 @@ public class GameManager : MonoBehaviour
     // ==========================
     // Player / Gold °ü¸®
     // ==========================
-    public int Gold => gold;
+    public long Gold => gold;
 
-    public void AddGold(int amount)
+    public void AddGold(long amount)
     {
         gold += amount;
         UIManager.Instance?.UpdateGoldDisplay(gold);
+        SavePlayerData();
     }
 
-    public bool SpendGold(int amount)
+    public bool SpendGold(long amount)
     {
         if (gold >= amount)
         {
             gold -= amount;
             UIManager.Instance?.UpdateGoldDisplay(gold);
+            SavePlayerData();
             return true;
         }
         return false;
@@ -132,7 +134,7 @@ public class GameManager : MonoBehaviour
     // ==========================
     public void SavePlayerData()
     {
-        PlayerPrefs.SetInt("Gold", gold);
+        PlayerPrefs.SetString("Gold", gold.ToString("NO"));
         PlayerPrefs.SetInt("CurrentTerritory", currentTerritory);
         PlayerPrefs.SetInt("CurrentStage", currentStage);
         PlayerPrefs.SetInt("CurrentRound", currentRound);
@@ -142,7 +144,11 @@ public class GameManager : MonoBehaviour
 
     public void LoadPlayerData()
     {
-        gold = PlayerPrefs.GetInt("Gold", 0);
+        string savedGold = PlayerPrefs.GetString("Gold", "0");
+        long parsed;
+        if (!long.TryParse(savedGold, out parsed)) parsed = 0;
+        gold = parsed;
+
         currentTerritory = PlayerPrefs.GetInt("CurrentTerritory", 1);
         currentStage = PlayerPrefs.GetInt("CurrentStage", 1);
         currentRound = PlayerPrefs.GetInt("CurrentRound", 1);
