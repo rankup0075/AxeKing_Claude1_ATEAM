@@ -1,5 +1,6 @@
-using UnityEngine;
 using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
 
 public class QuestBoardUI : MonoBehaviour
 {
@@ -8,6 +9,8 @@ public class QuestBoardUI : MonoBehaviour
     public Transform questListContainer;
     public GameObject questSlotPrefab;
     public TextMeshProUGUI emptyText;
+
+    public ScrollRect scrollRect;
 
     [Header("Player Info")]
     public TextMeshProUGUI currentGoldText; // 현재 골드 표시
@@ -20,7 +23,15 @@ public class QuestBoardUI : MonoBehaviour
     void OnEnable()
     {
         RefreshUI();
+
+        if (scrollRect != null)
+        {
+            Canvas.ForceUpdateCanvases(); // 레이아웃 강제 갱신
+            scrollRect.verticalNormalizedPosition = 1f; // 맨 위
+            Canvas.ForceUpdateCanvases(); // 레이아웃 강제 갱신
+        }
     }
+
 
     public void RefreshUI()
     {
@@ -43,6 +54,11 @@ public class QuestBoardUI : MonoBehaviour
 
         // 현재 골드 갱신
         if (currentGoldText != null && GameManager.Instance != null)
-            currentGoldText.text = $"현재 골드: {GameManager.Instance.Gold:NO}G";
+            currentGoldText.text = $"현재 골드: {GameManager.Instance.Gold:N0}G";
+    }
+
+    public void Close()
+    {
+        gameObject.SetActive(false);
     }
 }

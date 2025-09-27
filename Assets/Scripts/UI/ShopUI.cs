@@ -45,7 +45,7 @@ public class ShopUI : MonoBehaviour
             Button buyButton = itemUI.transform.Find("BuyButton").GetComponent<Button>();
 
             nameText.text = item.itemName;
-            priceText.text = $"{item.price:NO} G";
+            priceText.text = $"{item.price:N0} G";
 
             buyButton.onClick.AddListener(() => BuyItem(item));
         }

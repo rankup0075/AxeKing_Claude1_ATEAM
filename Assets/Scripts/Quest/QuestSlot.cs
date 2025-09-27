@@ -25,7 +25,7 @@ public class QuestSlotUI : MonoBehaviour
         questData = quest;
         questNameText.text = quest.questName;
         questDescText.text = quest.description;
-        rewardText.text = $"보상: {quest.rewardGold} Gold";
+        rewardText.text = $"보상: {quest.rewardGold:N0} Gold";
 
         actionButton.onClick.RemoveAllListeners();
 

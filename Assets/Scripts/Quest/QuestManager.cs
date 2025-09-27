@@ -71,7 +71,7 @@ public class QuestManager : MonoBehaviour
                 // 보상 지급 (GameManager 통해서)
                 GameManager.Instance.AddGold(quest.rewardGold);
 
-                Debug.Log($"퀘스트 완료: {quest.questName} (보상 {quest.rewardGold:NO} 골드)");
+                Debug.Log($"퀘스트 완료: {quest.questName} (보상 {quest.rewardGold:N0} 골드)");
 
                 // 퀘스트보드 UI 갱신 (골드 텍스트 포함)
                 if (QuestBoardUI.Instance != null)

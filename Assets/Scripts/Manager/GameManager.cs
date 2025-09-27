@@ -134,7 +134,7 @@ public class GameManager : MonoBehaviour
     // ==========================
     public void SavePlayerData()
     {
-        PlayerPrefs.SetString("Gold", gold.ToString("NO"));
+        PlayerPrefs.SetString("Gold", gold.ToString("N0"));
         PlayerPrefs.SetInt("CurrentTerritory", currentTerritory);
         PlayerPrefs.SetInt("CurrentStage", currentStage);
         PlayerPrefs.SetInt("CurrentRound", currentRound);

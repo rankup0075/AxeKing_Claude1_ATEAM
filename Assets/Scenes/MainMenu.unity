@@ -3540,7 +3540,7 @@ MonoBehaviour:
     position: {x: -8.5, y: 0, z: 0}
   - portalID: EquipmentShopToTown
     position: {x: -17.5, y: 0, z: 0}
-  - portalID: AlcehmistShopToTown
+  - portalID: AlchemistShopToTown
     position: {x: -5.25, y: 0, z: 0}
   - portalID: WarehouseToTown
     position: {x: 5.5, y: 0, z: 0}

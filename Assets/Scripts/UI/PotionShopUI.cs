@@ -76,7 +76,7 @@ public class PotionShopUI : MonoBehaviour
             ui.GetComponent<Button>().onClick.AddListener(() => SelectPotion(potion, ui));
 
             ui.transform.Find("NameText").GetComponent<TextMeshProUGUI>().text = potion.itemName;
-            ui.transform.Find("PriceText").GetComponent<TextMeshProUGUI>().text = $"{potion.price}G";
+            ui.transform.Find("PriceText").GetComponent<TextMeshProUGUI>().text = $"{potion.price:N0}G";
             ui.transform.Find("DescriptionText").GetComponent<TextMeshProUGUI>().text = potion.description;
 
             if (potion.icon != null)
@@ -97,7 +97,7 @@ public class PotionShopUI : MonoBehaviour
                 int ownedCount = GetPotionCount(potion.potionType);
                 TextMeshProUGUI ownedText = ui.transform.Find("CountText")?.GetComponent<TextMeshProUGUI>();
                 if (ownedText != null)
-                    ownedText.text = $"보유 : {ownedCount}개";
+                    ownedText.text = $"보유 : {ownedCount:N0}개";
             }
         }
     }
@@ -129,7 +129,7 @@ public class PotionShopUI : MonoBehaviour
 
         if (GameManager.Instance.Gold >= selectedPotion.price)
         {
-            GameManager.Instance.SpendGold(selectedPotion.price);
+            GameManager.Instance.SpendGold(selectedPotion.price );
             playerInventory.AddPotion(selectedPotion.potionType, 1);
 
             ShowMessage("구매 성공!", Color.green);
@@ -182,7 +182,7 @@ public class PotionShopUI : MonoBehaviour
 
     void RefreshUI()
     {
-        goldText.text = $"Gold : {GameManager.Instance.Gold}G";
+        goldText.text = $"Gold: {GameManager.Instance.Gold:N0} G";
     }
 
     void ShowMessage(string msg, Color color)

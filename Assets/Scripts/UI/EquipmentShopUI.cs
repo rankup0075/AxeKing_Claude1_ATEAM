@@ -98,7 +98,7 @@ public class EquipmentShopUI : MonoBehaviour
             var ownedLabel = ui.transform.Find("StatusText").gameObject;
 
             nameText.text = item.itemName;
-            priceText.text = $"{item.price} G";
+            priceText.text = $"{item.price:N0} G";
             descText.text = item.description;
             image.sprite = item.icon;
 
@@ -165,7 +165,7 @@ public class EquipmentShopUI : MonoBehaviour
 
     void RefreshUI()
     {
-        goldText.text = $"Gold: {gameManager.Gold}G";
+        goldText.text = $"Gold: {gameManager.Gold:N0} G";
     }
 
     void BuySelectedItem()

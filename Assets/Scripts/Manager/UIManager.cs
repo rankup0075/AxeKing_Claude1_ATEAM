@@ -70,6 +70,9 @@ public class UIManager : MonoBehaviour
         {
             //Debug.Log("ESC 감지됨");
 
+            if (SceneManager.GetActiveScene().name == "MainMenu")
+                return;
+
             if (potionShopPanel != null && potionShopPanel.activeSelf)
             {
                 ClosePotionShopUI();
@@ -98,17 +101,13 @@ public class UIManager : MonoBehaviour
 
             if (settingsPanel_InGame != null)
             {
+                var cg = settingsPanel_InGame.GetComponent<CanvasGroup>();
+                if (cg == null) return;
 
-                if (settingsPanel_InGame != null)
-                {
-                    var cg = settingsPanel_InGame.GetComponent<CanvasGroup>();
-                    if (cg == null) return;
-
-                    if (cg.alpha > 0.5f) CloseSettings();
-                    else OpenSettings();
-                }
+                if (cg.alpha > 0.5f) CloseSettings();
+                else OpenSettings();
             }
-           
+
         }
     }
 
@@ -138,17 +137,25 @@ public class UIManager : MonoBehaviour
     {
         if (settingsPanel_InGame == null) return;
 
-        if (settingsPanel_InGame != null)
+        var cg = settingsPanel_InGame.GetComponent<CanvasGroup>();
+        if (cg != null)
         {
-            var cg = settingsPanel_InGame.GetComponent<CanvasGroup>();
-            if (cg != null)
-            {
-                cg.alpha = 1f;
-                cg.interactable = true;
-                cg.blocksRaycasts = true;
-            }
-            Time.timeScale = 0f;
-            isPaused = true;
+            cg.alpha = 1f;
+            cg.interactable = true;
+            cg.blocksRaycasts = true;
+        }
+
+        Time.timeScale = 0f;
+        isPaused = true;
+
+        // 플레이어 제어 정지
+        var player = GameObject.FindWithTag("Player");
+        if (player != null)
+        {
+            var controller = player.GetComponent<PlayerController>();
+            if (controller != null) controller.canControl = false; // 입력 정지
+            var anim = player.GetComponent<Animator>();
+            if (anim != null) anim.speed = 0f; // 애니메이션 정지
         }
     }
 
@@ -156,17 +163,25 @@ public class UIManager : MonoBehaviour
     {
         if (settingsPanel_InGame == null) return;
 
-        if (settingsPanel_InGame != null)
+        var cg = settingsPanel_InGame.GetComponent<CanvasGroup>();
+        if (cg != null)
         {
-            var cg = settingsPanel_InGame.GetComponent<CanvasGroup>();
-            if (cg != null)
-            {
-                cg.alpha = 0f;
-                cg.interactable = false;
-                cg.blocksRaycasts = false;
-            }
-            Time.timeScale = 1f;
-            isPaused = false;
+            cg.alpha = 0f;
+            cg.interactable = false;
+            cg.blocksRaycasts = false;
+        }
+
+        Time.timeScale = 1f;
+        isPaused = false;
+
+        // 플레이어 제어 복구
+        var player = GameObject.FindWithTag("Player");
+        if (player != null)
+        {
+            var controller = player.GetComponent<PlayerController>();
+            if (controller != null) controller.canControl = true;
+            var anim = player.GetComponent<Animator>();
+            if (anim != null) anim.speed = 1f;
         }
     }
     public void ReturnToMainMenu()
@@ -331,7 +346,7 @@ public class UIManager : MonoBehaviour
     public void UpdateGoldDisplay(long gold)
     {
         if (goldText != null)
-            goldText.text = $"Gold: {gold:NO}";
+            goldText.text = $"Gold: {gold:N0}";
     }
 
     public void UpdatePotionCount(int small, int medium, int large)
@@ -469,23 +484,78 @@ public class UIManager : MonoBehaviour
             }
         }
 
-        if (settingsPanel_InGame != null)
-        {
-            var cg = settingsPanel_InGame.GetComponent<CanvasGroup>();
-            if (cg == null) cg = settingsPanel_InGame.AddComponent<CanvasGroup>();
 
-            cg.alpha = 0f;
-            cg.interactable = false;
-            cg.blocksRaycasts = false;
+        if (settingsPanel_InGame == null)
+        {
+            Debug.LogWarning("[UIManager] SettingsPanel_InGame 없음");
+            return;
         }
+
+        // 씬 안의 Canvas들 중에서 "이름이 그냥 Canvas인 것"만 선택
+        var targetCanvas = FindObjectsByType<Canvas>(FindObjectsSortMode.None)
+            .FirstOrDefault(c => c.name == "Canvas"); // "일반 Canvas"만 선택
+
+        if (targetCanvas == null)
+        {
+            Debug.LogWarning("[UIManager] 활성 Canvas 없음 → SettingsPanel 이동 생략");
+        }
+        else
+        {
+            settingsPanel_InGame.transform.SetParent(targetCanvas.transform, false);
+
+            var rt = settingsPanel_InGame.transform as RectTransform;
+            rt.anchorMin = Vector2.zero;
+            rt.anchorMax = Vector2.one;
+            rt.offsetMin = Vector2.zero;
+            rt.offsetMax = Vector2.zero;
+            rt.localScale = Vector3.one;
+
+            Debug.Log($"[UIManager] SettingsPanel_InGame → '{targetCanvas.name}' 로 이동 완료");
+        }
+
+        // CanvasGroup 초기화
+        var cg = settingsPanel_InGame.GetComponent<CanvasGroup>();
+        if (cg == null) cg = settingsPanel_InGame.AddComponent<CanvasGroup>();
+
+        cg.alpha = 0f;
+        cg.interactable = false;
+        cg.blocksRaycasts = false;
 
     }
 
     void HookupSettingsButtons()
     {
-        if (settingsPanel_InGame == null) return;
+        if (settingsPanel_InGame != null) return;
 
-        // 버튼 찾기
+        // Resources에서 프리팹 로드
+        GameObject prefab = Resources.Load<GameObject>("UI/SettingsPanel_InGame");
+        if (prefab == null)
+        {
+            Debug.LogWarning("[UIManager] Resources/UI/SettingsPanel_InGame.prefab 없음");
+            return;
+        }
+
+        // 인스턴스 생성
+        var panelInstance = Instantiate(prefab);
+        panelInstance.name = "SettingsPanel_InGame";
+        settingsPanel_InGame = panelInstance;
+
+        // 현재 씬에서 가장 위 Canvas 찾기
+        var targetCanvas = FindObjectsByType<Canvas>(FindObjectsSortMode.None)
+            .Where(c => c.isActiveAndEnabled && c.gameObject.activeInHierarchy)
+            .OrderByDescending(c => c.sortingOrder)
+            .FirstOrDefault();
+
+        if (targetCanvas != null)
+        {
+            settingsPanel_InGame.transform.SetParent(targetCanvas.transform, false);
+            Debug.Log($"[UIManager] SettingsPanel_InGame '{targetCanvas.name}' 밑으로 이동");
+        }
+        else
+        {
+            Debug.LogWarning("[UIManager] 활성 Canvas 없음 → SettingsPanel_InGame 고아 상태");
+        }
+
         closeButton = settingsPanel_InGame.transform
         .Find("ContentContainer/CloseButton")?.GetComponent<Button>();
 
@@ -515,5 +585,15 @@ public class UIManager : MonoBehaviour
         }
 
         Debug.Log("[UIManager] SettingsPanel 버튼 연결 완료");
+
+
+        // CanvasGroup 기본값 초기화
+        var cg = settingsPanel_InGame.GetComponent<CanvasGroup>();
+        if (cg == null) cg = settingsPanel_InGame.AddComponent<CanvasGroup>();
+        cg.alpha = 0f;
+        cg.interactable = false;
+        cg.blocksRaycasts = false;
+
+
     }
 }
