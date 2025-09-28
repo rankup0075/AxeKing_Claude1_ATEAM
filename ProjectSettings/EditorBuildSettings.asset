@@ -20,6 +20,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/WareHouse.unity
     guid: c4f73bbe94786d644b882df7e63733ec
+  - enabled: 1
+    path: Assets/Scenes/Terraria/Terraria 1/Stage 1/Stage101.unity
+    guid: 8349399a77cb99b439afda7502c97860
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0

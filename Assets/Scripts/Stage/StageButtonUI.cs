@@ -40,6 +40,16 @@ public class StageButtonUI : MonoBehaviour
     {
         Debug.Log($"스테이지 선택됨: {stageData.stageName}");
         // UIManager나 StageManager 통해서 실제 스테이지 로드로 연결
+
+        if (stageData.isUnlocked)
+        {
+            // StageManager를 통해 씬 로드
+            StageManager.Instance.EnterStage(stageData.stageId);
+        }
+        else
+        {
+            Debug.LogWarning($"[StageButtonUI] {stageData.stageName} 은 잠겨있음");
+        }
     }
 
     //void UpdateUI()

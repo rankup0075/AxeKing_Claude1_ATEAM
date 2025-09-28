@@ -363,7 +363,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.00048828125}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: -80, y: -57.947025}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &87023739
@@ -6562,34 +6562,39 @@ MonoBehaviour:
     stages:
     - stageId: Stage1-1
       stageName: "\uC232\uC758 \uC785\uAD6C 1"
-      sceneName: 
+      sceneName: Stage101
       thumbnail: {fileID: 0}
       isUnlocked: 1
       isCompleted: 0
+      spawnPosition: {x: -20, y: 0, z: 0}
     - stageId: Stage1-2
       stageName: "\uC232\uC758 \uC785\uAD6C 2"
       sceneName: 
       thumbnail: {fileID: 0}
       isUnlocked: 0
       isCompleted: 0
+      spawnPosition: {x: 0, y: 0, z: 0}
     - stageId: Stage1-3
       stageName: "\uC232\uC758 \uC785\uAD6C 3"
       sceneName: 
       thumbnail: {fileID: 0}
       isUnlocked: 0
       isCompleted: 0
+      spawnPosition: {x: 0, y: 0, z: 0}
     - stageId: Stage1-4
       stageName: "\uC232\uC758 \uC785\uAD6C 5"
       sceneName: 
       thumbnail: {fileID: 0}
       isUnlocked: 0
       isCompleted: 0
+      spawnPosition: {x: 0, y: 0, z: 0}
     - stageId: Stage1-5
       stageName: "\uC232\uC758 \uC785\uAD6C 5"
       sceneName: 
       thumbnail: {fileID: 0}
       isUnlocked: 0
       isCompleted: 0
+      spawnPosition: {x: 0, y: 0, z: 0}
     thumbnail: {fileID: 0}
     isUnlocked: 1
   - regionId: Region002
@@ -6608,30 +6613,35 @@ MonoBehaviour:
       thumbnail: {fileID: 0}
       isUnlocked: 0
       isCompleted: 0
+      spawnPosition: {x: 0, y: 0, z: 0}
     - stageId: Stage2-2
       stageName: "\uB3CC \uBB34\uB364 2"
       sceneName: 
       thumbnail: {fileID: 0}
       isUnlocked: 0
       isCompleted: 0
+      spawnPosition: {x: 0, y: 0, z: 0}
     - stageId: Stage2-3
       stageName: "\uB3CC \uBB34\uB364 3"
       sceneName: 
       thumbnail: {fileID: 0}
       isUnlocked: 0
       isCompleted: 0
+      spawnPosition: {x: 0, y: 0, z: 0}
     - stageId: Stage2-4
       stageName: "\uB3CC \uBB34\uB364 4"
       sceneName: 
       thumbnail: {fileID: 0}
       isUnlocked: 0
       isCompleted: 0
+      spawnPosition: {x: 0, y: 0, z: 0}
     - stageId: Stage2-5
       stageName: "\uB3CC \uBB34\uB364 1"
       sceneName: 
       thumbnail: {fileID: 0}
       isUnlocked: 0
       isCompleted: 0
+      spawnPosition: {x: 0, y: 0, z: 0}
     thumbnail: {fileID: 0}
     isUnlocked: 0
   - regionId: Region003
@@ -6650,39 +6660,38 @@ MonoBehaviour:
       thumbnail: {fileID: 0}
       isUnlocked: 0
       isCompleted: 0
+      spawnPosition: {x: 0, y: 0, z: 0}
     - stageId: Stage3-2
       stageName: "\uD654\uC5FC \uC815\uB839\uB4E4\uC758 \uB180\uC774\uD130 2"
       sceneName: 
       thumbnail: {fileID: 0}
       isUnlocked: 0
       isCompleted: 0
+      spawnPosition: {x: 0, y: 0, z: 0}
     - stageId: Stage3-3
       stageName: "\uD654\uC5FC \uC815\uB839\uB4E4\uC758 \uB180\uC774\uD130 3"
       sceneName: 
       thumbnail: {fileID: 0}
       isUnlocked: 0
       isCompleted: 0
+      spawnPosition: {x: 0, y: 0, z: 0}
     - stageId: Stage3-4
       stageName: "\uD654\uC5FC \uC815\uB839\uB4E4\uC758 \uB180\uC774\uD130 4"
       sceneName: 
       thumbnail: {fileID: 0}
       isUnlocked: 0
       isCompleted: 0
+      spawnPosition: {x: 0, y: 0, z: 0}
     - stageId: Stage3-5
       stageName: "\uD654\uC5FC \uC815\uB839\uB4E4\uC758 \uB180\uC774\uD130 5"
       sceneName: 
       thumbnail: {fileID: 0}
       isUnlocked: 0
       isCompleted: 0
+      spawnPosition: {x: 0, y: 0, z: 0}
     thumbnail: {fileID: 0}
     isUnlocked: 0
-  stages:
-  - stageId: Stage1-1
-    stageName: "1. \uC232\uC758 \uC785\uAD6C"
-    sceneName: 
-    thumbnail: {fileID: 0}
-    isUnlocked: 1
-    isCompleted: 0
+  stages: []
 --- !u!4 &345712457
 Transform:
   m_ObjectHideFlags: 0
@@ -18209,7 +18218,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1925994764}
   m_Direction: 2
   m_Value: 0
-  m_Size: 0.9999559
+  m_Size: 0.9999958
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -24652,8 +24661,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1838048846}
   m_HandleRect: {fileID: 1838048845}
   m_Direction: 0
-  m_Value: 1
-  m_Size: 0.99999994
+  m_Value: 0
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -25294,7 +25303,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Portal
   targetScene: 
-  portalID: TownToStageSelect
+  portalID: 
   portalType: 1
   isUnlocked: 1
   potionShopUI: {fileID: 0}
