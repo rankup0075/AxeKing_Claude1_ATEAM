@@ -607,8 +607,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1952219710}
   m_HandleRect: {fileID: 1952219709}
   m_Direction: 2
-  m_Value: 1
-  m_Size: 0.5
+  m_Value: 0
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -17016,7 +17016,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::QuestManager
   allQuests:
-  - questId: 1
+  - questId: Quest001
     questName: "\uACE0\uBE14\uB9B0 \uD1A0\uBC8C1"
     description: "\uACE0\uBE14\uB9B0\uC744 \uC7A1\uC73C\uBA74 \uB098\uC624\uB294
       \uACE0\uBE14\uB9B0 \uAC00\uC8FD\uC744 30\uAC1C \uC218\uC9D1\uD558\uC138\uC694."
@@ -17027,7 +17027,7 @@ MonoBehaviour:
     isCompleted: 0
     prerequisiteQuestId: 
     requiredItemName: "\uACE0\uBE14\uB9B0\uC758 \uAC00\uC8FD"
-  - questId: 2
+  - questId: Quest002
     questName: "\uACE0\uBE14\uB9B0 \uD1A0\uBC8C2"
     description: "\uACE0\uBE14\uB9B0\uC744 \uC7A1\uC73C\uBA74 \uB098\uC624\uB294
       \uACE0\uBE14\uB9B0 \uAC00\uC8FD\uC744 70\uAC1C \uC218\uC9D1\uD558\uC138\uC694."
@@ -17038,7 +17038,7 @@ MonoBehaviour:
     isCompleted: 0
     prerequisiteQuestId: Quest001
     requiredItemName: "\uACE0\uBE14\uB9B0\uC758 \uAC00\uC8FD"
-  - questId: 3
+  - questId: Quest003
     questName: "\uACE8\uB818 \uD1A0\uBC8C1"
     description: "\uACE8\uB818\uC744 \uC7A1\uC73C\uBA74 \uB098\uC624\uB294 \uACE8\uB818\uD30C\uD3B8\uC744
       30\uAC1C \uC218\uC9D1\uD558\uC138\uC694."
@@ -17049,7 +17049,7 @@ MonoBehaviour:
     isCompleted: 0
     prerequisiteQuestId: Quest002
     requiredItemName: "\uACE8\uB818\uC758 \uD30C\uD3B8"
-  - questId: 4
+  - questId: Quest004
     questName: "\uACE8\uB818 \uD1A0\uBC8C2"
     description: "\uACE8\uB818\uC744 \uC7A1\uC73C\uBA74 \uB098\uC624\uB294 \uACE8\uB818\uD30C\uD3B8\uC744
       70\uAC1C\uC218\uC9D1\uD558\uC138\uC694."
@@ -17060,7 +17060,7 @@ MonoBehaviour:
     isCompleted: 0
     prerequisiteQuestId: Quest003
     requiredItemName: "\uACE8\uB818\uC758 \uD30C\uD3B8"
-  - questId: 5
+  - questId: Quest005
     questName: "\uD654\uC5FC \uC815\uB839 \uD1A0\uBC8C1"
     description: "\uD654\uC5FC \uC815\uB839\uC744 \uC7A1\uC73C\uBA74 \uB098\uC624\uB294
       \uD654\uC5FC \uAD6C\uC2AC\uC744 30\uAC1C \uC218\uC9D1\uD558\uC138\uC694."
@@ -17071,7 +17071,7 @@ MonoBehaviour:
     isCompleted: 0
     prerequisiteQuestId: Quest004
     requiredItemName: "\uD654\uC5FC \uAD6C\uC2AC"
-  - questId: 6
+  - questId: Quest006
     questName: "\uD654\uC5FC \uC815\uB839 \uD1A0\uBC8C2"
     description: "\uD654\uC5FC \uC815\uB839\uC744 \uC7A1\uC73C\uBA74 \uB098\uC624\uB294
       \uD654\uC5FC \uAD6C\uC2AC\uC744 70\uAC1C \uC218\uC9D1\uD558\uC138\uC694."
@@ -17082,7 +17082,7 @@ MonoBehaviour:
     isCompleted: 0
     prerequisiteQuestId: Quest005
     requiredItemName: "\uD654\uC5FC \uAD6C\uC2AC"
-  - questId: 7
+  - questId: Quest007
     questName: "\uC5BC\uC74C \uD1A0\uD15C \uD1A0\uBC8C1"
     description: "\uC5BC\uC74C \uD1A0\uD15C\uC744 \uC7A1\uC73C\uBA74 \uB098\uC624\uB294
       \uB208\uBB3C \uC870\uAC01\uC744 30\uAC1C \uC218\uC9D1\uD558\uC138\uC694."
@@ -17093,7 +17093,7 @@ MonoBehaviour:
     isCompleted: 0
     prerequisiteQuestId: Quest006
     requiredItemName: "\uB208\uBB3C \uC870\uAC01"
-  - questId: 8
+  - questId: Quest008
     questName: "\uC5BC\uC74C \uD1A0\uD15C \uD1A0\uBC8C2"
     description: "\uC5BC\uC74C \uD1A0\uD15C\uC744 \uC7A1\uC73C\uBA74 \uB098\uC624\uB294
       \uB208\uBB3C \uC870\uAC01\uC744 70\uAC1C \uC218\uC9D1\uD558\uC138\uC694."
@@ -17104,7 +17104,7 @@ MonoBehaviour:
     isCompleted: 0
     prerequisiteQuestId: Quest007
     requiredItemName: "\uB208\uBB3C \uC870\uAC01"
-  - questId: 9
+  - questId: Quest009
     questName: "\uC2E0\uBD09\uC790 \uD1A0\uBC8C1"
     description: "\uC2E0\uBD09\uC790\uB97C \uC7A1\uC73C\uBA74 \uB098\uC624\uB294
       \uCC22\uC5B4\uC9C4 \uACE0\uC11C\uB97C 30\uAC1C \uC218\uC9D1\uD558\uC138\uC694."
@@ -17115,7 +17115,7 @@ MonoBehaviour:
     isCompleted: 0
     prerequisiteQuestId: Quest008
     requiredItemName: "\uCC22\uC5B4\uC9C4 \uACE0\uC11C"
-  - questId: 10
+  - questId: Quest010
     questName: "\uC2E0\uBD09\uC790 \uD1A0\uBC8C2"
     description: "\uC2E0\uBD09\uC790\uB97C \uC7A1\uC73C\uBA74 \uB098\uC624\uB294
       \uCC22\uC5B4\uC9C4 \uACE0\uC11C\uB97C 70\uAC1C \uC218\uC9D1\uD558\uC138\uC694."
@@ -22768,7 +22768,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 100
   m_TargetDisplay: 0
 --- !u!224 &1307034783
 RectTransform:

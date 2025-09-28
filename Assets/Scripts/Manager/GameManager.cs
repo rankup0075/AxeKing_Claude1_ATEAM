@@ -33,6 +33,11 @@ public class GameManager : MonoBehaviour
     [Header("Portal Spawn Table (Inspector에서 설정)")]
     public List<PortalSpawnPoint> spawnPoints = new List<PortalSpawnPoint>();
 
+    public GameObject playerHUDPrefab;
+    GameObject playerHUDInstance;
+
+    void OnEnable() => SceneManager.sceneLoaded += OnSceneLoaded;
+    void OnDisable() => SceneManager.sceneLoaded -= OnSceneLoaded;
 
     // ==========================
     // Unity Events
@@ -61,8 +66,19 @@ public class GameManager : MonoBehaviour
         Debug.Log($"[GM] 씬 로드됨: {scene.name}, lastPortalID={lastPortalID}");
         StopAllCoroutines();
         StartCoroutine(PlacePlayerAtLastPortalAfterDelay(scene.name));
-    }
 
+        bool show = scene.name != "MainMenu";
+        if (playerHUDInstance == null && playerHUDPrefab != null)
+        {
+            playerHUDInstance = Instantiate(playerHUDPrefab);
+            DontDestroyOnLoad(playerHUDInstance);
+
+            // [NEW] HUD 초기화
+            UIManager.Instance?.InitPlayerHUD();
+        }
+        if (playerHUDInstance != null)
+            playerHUDInstance.SetActive(show);
+    }
 
     // ==========================
     // Player / Gold 관리
@@ -73,6 +89,7 @@ public class GameManager : MonoBehaviour
     {
         gold += amount;
         UIManager.Instance?.UpdateGoldDisplay(gold);
+        UIManager.Instance?.UpdateHUDGold(gold); // [NEW] HUD 반영
         SavePlayerData();
     }
 
@@ -82,12 +99,12 @@ public class GameManager : MonoBehaviour
         {
             gold -= amount;
             UIManager.Instance?.UpdateGoldDisplay(gold);
+            UIManager.Instance?.UpdateHUDGold(gold); // [NEW] HUD 반영
             SavePlayerData();
             return true;
         }
         return false;
     }
-
 
     // ==========================
     // Stage / Game Over
@@ -128,7 +145,6 @@ public class GameManager : MonoBehaviour
         SceneManager.LoadScene("Town");
     }
 
-
     // ==========================
     // Save / Load
     // ==========================
@@ -154,8 +170,8 @@ public class GameManager : MonoBehaviour
         currentRound = PlayerPrefs.GetInt("CurrentRound", 1);
         lastPortalID = PlayerPrefs.GetString("LastPortalID", "");
         UIManager.Instance?.UpdateGoldDisplay(gold);
+        UIManager.Instance?.UpdateHUDGold(gold); // [NEW] HUD 반영
     }
-
 
     // ==========================
     // Portal Handling
@@ -197,7 +213,7 @@ public class GameManager : MonoBehaviour
             {
                 rb.linearVelocity = Vector3.zero;
                 rb.angularVelocity = Vector3.zero;
-                rb.Sleep(); // 물리 시뮬레이션 완전 정지
+                rb.Sleep();
             }
 
             // PlayerController 입력 잠시 차단

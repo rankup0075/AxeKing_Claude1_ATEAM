@@ -25,6 +25,16 @@ public class UIManager : MonoBehaviour
     [Header("Gold UI")]
     public TextMeshProUGUI goldText;
 
+    [Header("PlayerHUD")]
+    public GameObject playerHUD; // PlayerHUD 패널 (프리팹으로 생성되거나 씬에 존재)
+    public TextMeshProUGUI hudGoldText;
+    public Slider hudHealthBar;
+    public TextMeshProUGUI hudHealthText;
+    public TextMeshProUGUI hudSmallPotionText;
+    public TextMeshProUGUI hudMediumPotionText;
+    public TextMeshProUGUI hudLargePotionText;
+
+
     [Header("Interaction")]
     public GameObject interactionPrompt;
     public TextMeshProUGUI interactionText;
@@ -291,6 +301,9 @@ public class UIManager : MonoBehaviour
             var qb = questBoardPanel.GetComponent<QuestBoardUI>();
             if (qb != null) qb.RefreshUI();
             Time.timeScale = 0f;
+            if (playerHUD != null)
+                playerHUD.SetActive(false); // HUD 끄기
+
             Debug.Log("[UIManager] QuestBoard 열림");
         }
         else
@@ -305,6 +318,9 @@ public class UIManager : MonoBehaviour
         {
             questBoardPanel.SetActive(false);
             Time.timeScale = 1f;
+
+            if (playerHUD != null)
+                playerHUD.SetActive(true); // HUD 다시 켜기
         }
         ResetCameraTarget();
         RestorePlayerControl();
@@ -355,6 +371,43 @@ public class UIManager : MonoBehaviour
         if (mediumPotionCount != null) mediumPotionCount.text = medium.ToString();
         if (largePotionCount != null) largePotionCount.text = large.ToString();
     }
+    // ======================
+    // [NEW] PlayerHUD 전용 UI
+    // ======================
+    public void InitPlayerHUD()
+    {
+        if (playerHUD == null) return;
+        UpdateHUDGold(GameManager.Instance?.Gold ?? 0);
+        UpdateHUDHealth(100, 100);
+        UpdateHUDPotions(0, 0, 0);
+    }
+
+    public void UpdateHUDGold(long gold)
+    {
+        if (hudGoldText != null)
+            hudGoldText.text = $"Gold: {gold:N0}G";
+    }
+
+    public void UpdateHUDHealth(int current, int max)
+    {
+        if (hudHealthBar != null)
+            hudHealthBar.value = max > 0 ? (float)current / max : 0f;
+
+        if (hudHealthText != null)
+            hudHealthText.text = $"{current}/{max}";
+    }
+
+    public void UpdateHUDPotions(int small, int medium, int large)
+    {
+        if (hudSmallPotionText != null)
+            hudSmallPotionText.text = $"{small:N0}개";
+        if (hudMediumPotionText != null)
+            hudMediumPotionText.text = $"{medium:N0}개";
+        if (hudLargePotionText != null)
+            hudLargePotionText.text = $"{large:N0}개";
+    }
+
+
 
     // ======================
     // Interaction Prompt
@@ -427,6 +480,9 @@ public class UIManager : MonoBehaviour
 
         // [NEW] 매 씬 로드시 SettingsPanel을 해당 씬의 Canvas 밑으로 이동
         MoveSettingsPanelToActiveCanvas();
+
+        // [NEW] 씬 로드 시 HUD도 자동 재연결
+        ReassignPlayerHUD(scene);
     }
 
     void ReassignPanels()
@@ -595,5 +651,58 @@ public class UIManager : MonoBehaviour
         cg.blocksRaycasts = false;
 
 
+    }
+
+
+    // [NEW] PlayerHUD 재연결
+    void ReassignPlayerHUD(Scene scene)
+    {
+        // MainMenu에서는 HUD 필요 없음
+        if (scene.name == "MainMenu")
+        {
+            playerHUD = null;
+            return;
+        }
+
+        if (playerHUD == null)
+        {
+            // 씬에 없으면 프리팹 인스턴스화
+            var prefab = Resources.Load<GameObject>("UI/PlayerHUDCanvas");
+            if (prefab != null)
+            {
+                var instance = Instantiate(prefab);
+                playerHUD = instance.transform.Find("PlayerHUD")?.gameObject;
+                DontDestroyOnLoad(instance); // 씬 전환 시 파괴되지 않게
+                Debug.Log("[UIManager] PlayerHUD 프리팹 인스턴스화 완료");
+            }
+            else
+            {
+                Debug.LogError("[UIManager] Resources/UI/PlayerHUDCanvas 프리팹을 찾을 수 없음");
+                return;
+            }
+        }
+
+        if (playerHUD == null)
+            playerHUD = GameObject.Find("PlayerHUDCanvas/PlayerHUD");
+
+        if (playerHUD != null)
+        {
+            // 자식 오브젝트 찾아서 연결
+            hudGoldText = playerHUD.transform.Find("UIContainer/GoldText")?.GetComponent<TextMeshProUGUI>();
+
+            hudHealthBar = playerHUD.transform.Find("UIContainer/HP/Fill")?.GetComponent<Slider>();
+            hudHealthText = playerHUD.transform.Find("UIContainer/HP/HealthText")?.GetComponent<TextMeshProUGUI>();
+
+            hudSmallPotionText = playerHUD.transform.Find("UIContainer/SmallPotionCount/SmallPotionCountText")?.GetComponent<TextMeshProUGUI>();
+            hudMediumPotionText = playerHUD.transform.Find("UIContainer/MiddlePotionCount/MiddlePotionCountText")?.GetComponent<TextMeshProUGUI>();
+            hudLargePotionText = playerHUD.transform.Find("UIContainer/LargePotionCount/LargePotionCountText")?.GetComponent<TextMeshProUGUI>();
+
+
+            Debug.Log("[UIManager] PlayerHUD 재연결 완료");
+        }
+        else
+        {
+            Debug.LogWarning("[UIManager] PlayerHUD를 찾을 수 없음");
+        }
     }
 }

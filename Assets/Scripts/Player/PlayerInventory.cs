@@ -53,6 +53,9 @@ public class PlayerInventory : MonoBehaviour
 
         if (QuestManager.Instance != null)
             QuestManager.Instance.UpdateQuestProgress();
+
+        UIManager.Instance?.UpdateHUDPotions(smallPotions, mediumPotions, largePotions);
+
     }
 
     // 아이템 제거
@@ -152,6 +155,9 @@ public class PlayerInventory : MonoBehaviour
     void UpdateUI()
     {
         UIManager.Instance.UpdatePotionCount(smallPotions, mediumPotions, largePotions);
+
+        // [NEW] HUD 포션 UI도 갱신
+        UIManager.Instance.UpdateHUDPotions(smallPotions, mediumPotions, largePotions);
     }
 
     // ==============================
