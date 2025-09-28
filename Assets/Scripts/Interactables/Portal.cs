@@ -64,7 +64,7 @@ public class Portal : MonoBehaviour
                 break;
 
             case PortalType.StageSelect:
-                UIManager.Instance?.OpenStageSelectUI();
+                UIManager.Instance?.OpenStageSelectPanel();
                 break;
 
             case PortalType.QuestBoard:

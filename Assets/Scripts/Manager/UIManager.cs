@@ -103,11 +103,13 @@ public class UIManager : MonoBehaviour
                 CloseWareHouseUI();
                 return;
             }
+            //if (stageSelectPanel != null && stageSelectPanel.activeSelf)
+            //{
+            //    CloseStageSelectPanel();
+            //    return;
+            //}
             if (stageSelectPanel != null && stageSelectPanel.activeSelf)
-            {
-                CloseStageSelectUI();
                 return;
-            }
 
             if (settingsPanel_InGame != null)
             {
@@ -326,24 +328,67 @@ public class UIManager : MonoBehaviour
         RestorePlayerControl();
     }
 
-    public void OpenStageSelectUI()
+    public void OpenStageSelectPanel()
     {
-        if (stageSelectPanel != null)
+        if (stageSelectPanel == null)
         {
-            stageSelectPanel.SetActive(true);
-            Time.timeScale = 0f;
+            Debug.LogError("[UIManager] StageSelectPanel이 씬에 없음");
+            return;
+        }
+
+        stageSelectPanel.SetActive(true);
+
+        if (StageSelectUI.Instance != null)
+        {
+            StageSelectUI.Instance.Open();
+            RefreshStageSelectUI();
+        }
+        else
+        {
+            Debug.LogError("[UIManager] StageSelectUI.Instance가 null임");
+        }
+
+        var player = GameObject.FindWithTag("Player");
+        if (player != null)
+        {
+            var controller = player.GetComponent<PlayerController>();
+            if (controller != null) controller.canControl = false;
+            var anim = player.GetComponent<Animator>();
+            if (anim != null) anim.speed = 0f;
         }
     }
 
-    public void CloseStageSelectUI()
+
+    public void CloseStageSelectPanel()
     {
         if (stageSelectPanel != null)
-        {
             stageSelectPanel.SetActive(false);
-            Time.timeScale = 1f;
+
+        var player = GameObject.FindWithTag("Player");
+        if (player != null)
+        {
+            var controller = player.GetComponent<PlayerController>();
+            if (controller != null)
+            {
+                controller.canControl = true;  // [추가] 입력 복구
+                controller.canMove = true;     // [선택] 필요하다면 이동도 허용
+            }
+
+            var anim = player.GetComponent<Animator>();
+            if (anim != null) anim.speed = 1f;
         }
+
+        // 카메라, 입력 회복 보장
         ResetCameraTarget();
         RestorePlayerControl();
+    }
+
+
+    void RefreshStageSelectUI()
+    {
+        // 여기서 StageManager.Instance.regions 데이터를 읽어서
+        // 버튼 동적 생성하면 됨
+        Debug.Log("[UIManager] Stage Select UI 갱신");
     }
 
     // ======================
@@ -492,7 +537,30 @@ public class UIManager : MonoBehaviour
         if (equipmentShopPanel == null) equipmentShopPanel = GameObject.Find("EquipmentShopPanel");
         if (questBoardPanel == null) questBoardPanel = GameObject.Find("QuestBoardPanel");
         if (inventoryPanel == null) inventoryPanel = GameObject.Find("InventoryPanel");
-        if (stageSelectPanel == null) stageSelectPanel = GameObject.Find("StageSelectPanel");
+        if (stageSelectPanel == null)
+        {
+            stageSelectPanel = GameObject.Find("StageSelectPanel");
+
+            if (stageSelectPanel == null)
+            {
+                // Canvas 밑에서 탐색
+                var allPanels = FindObjectsByType<Canvas>(FindObjectsSortMode.None);
+                foreach (var canvas in allPanels)
+                {
+                    var child = canvas.transform.Find("StageSelectPanel");
+                    if (child != null)
+                    {
+                        stageSelectPanel = child.gameObject;
+                        break;
+                    }
+                }
+            }
+
+            if (stageSelectPanel != null)
+                Debug.Log("[UIManager] StageSelectPanel 자동 연결 성공");
+            else
+                Debug.LogError("[UIManager] StageSelectPanel 여전히 못 찾음");
+        }
         if (gameOverPanel == null) gameOverPanel = GameObject.Find("GameOverPanel");
         if (stageCompletePanel == null) stageCompletePanel = GameObject.Find("StageCompletePanel");
 
