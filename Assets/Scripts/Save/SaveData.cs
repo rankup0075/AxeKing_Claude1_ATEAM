@@ -17,9 +17,16 @@ public class PlayerData
     public int smallPotions;
     public int mediumPotions;
     public int largePotions;
-    public List<ItemEntry> items = new List<ItemEntry>();        // 딕셔너리 대체
+
+    // 현재 체력
+    public int currentHealth;
+
+    // 인벤토리
+    public List<ItemEntry> items = new List<ItemEntry>();
     public List<EquipmentEntry> weapons = new List<EquipmentEntry>();
     public List<EquipmentEntry> armors = new List<EquipmentEntry>();
+
+    // 장착 중인 장비
     public EquipmentEntry equippedWeapon;
     public EquipmentEntry equippedArmor;
 }
@@ -35,7 +42,7 @@ public class ItemEntry
 public class EquipmentEntry
 {
     public string itemName;
-    public int type;        // ShopUI.ItemType 를 int로 보관
+    public int type;        // ShopUI.ItemType을 int로 저장
     public int statBonus;
 }
 

@@ -2,6 +2,7 @@ using System.IO;
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class SaveLoadManager : MonoBehaviour
 {
@@ -21,22 +22,23 @@ public class SaveLoadManager : MonoBehaviour
     {
         var data = new SaveData();
 
-        // Player / Inventory
         var gm = GameManager.Instance;
         var inv = FindFirstObjectByType<PlayerInventory>();
+        var hp = FindFirstObjectByType<PlayerHealth>();
 
+        // 골드
         if (gm != null) data.player.gold = gm.gold;
+
+        // 포션 + 인벤토리
         if (inv != null)
         {
             data.player.smallPotions = inv.smallPotions;
             data.player.mediumPotions = inv.mediumPotions;
             data.player.largePotions = inv.largePotions;
 
-            // items 딕셔너리 -> 리스트
             foreach (var kv in inv.items)
                 data.player.items.Add(new ItemEntry { name = kv.Key, count = kv.Value });
 
-            // 장비 스토리지 최소 정보만 저장
             foreach (var w in inv.weaponStorage)
                 data.player.weapons.Add(new EquipmentEntry
                 {
@@ -52,7 +54,6 @@ public class SaveLoadManager : MonoBehaviour
                     statBonus = a.EquipmentstatBonus
                 });
 
-            // 장착중
             if (inv.currentWeapon != null)
                 data.player.equippedWeapon = new EquipmentEntry
                 {
@@ -69,7 +70,11 @@ public class SaveLoadManager : MonoBehaviour
                 };
         }
 
-        // Quests
+        // 현재 체력
+        if (hp != null)
+            data.player.currentHealth = hp.currentHealth;
+
+        // 퀘스트
         var qm = QuestManager.Instance;
         if (qm != null)
         {
@@ -83,7 +88,7 @@ public class SaveLoadManager : MonoBehaviour
                 });
         }
 
-        // Regions / Stages
+        // 지역/스테이지
         var sm = StageManager.Instance;
         if (sm != null)
         {
@@ -96,6 +101,7 @@ public class SaveLoadManager : MonoBehaviour
             }
         }
 
+        // 파일 기록
         var json = JsonUtility.ToJson(data, true);
         File.WriteAllText(path, json);
         Debug.Log($"[Save] {path}");
@@ -111,28 +117,29 @@ public class SaveLoadManager : MonoBehaviour
 
         var gm = GameManager.Instance;
         var inv = FindFirstObjectByType<PlayerInventory>();
+        var hp = FindFirstObjectByType<PlayerHealth>();
         var qm = QuestManager.Instance;
         var sm = StageManager.Instance;
 
-        // Player / Inventory
+        // 골드
         if (gm != null)
         {
             gm.gold = data.player.gold;
             UIManager.Instance?.UpdateGoldDisplay(gm.gold);
             UIManager.Instance?.UpdateHUDGold(gm.gold);
         }
+
+        // 인벤토리
         if (inv != null)
         {
             inv.smallPotions = data.player.smallPotions;
             inv.mediumPotions = data.player.mediumPotions;
             inv.largePotions = data.player.largePotions;
 
-            // 리스트 -> 딕셔너리 복원
             inv.items = new Dictionary<string, int>();
             foreach (var e in data.player.items)
                 inv.items[e.name] = e.count;
 
-            // 스토리지 복원
             inv.weaponStorage = new List<ItemEquipment>();
             foreach (var e in data.player.weapons)
                 inv.weaponStorage.Add(new ItemEquipment
@@ -151,7 +158,6 @@ public class SaveLoadManager : MonoBehaviour
                     EquipmentstatBonus = e.statBonus
                 });
 
-            // 장착 복원
             inv.currentWeapon = (data.player.equippedWeapon != null && !string.IsNullOrEmpty(data.player.equippedWeapon.itemName))
                 ? new ItemEquipment
                 {
@@ -168,12 +174,19 @@ public class SaveLoadManager : MonoBehaviour
                     EquipmentstatBonus = data.player.equippedArmor.statBonus
                 } : null;
 
-            // HUD/기존 포션 UI 갱신
             UIManager.Instance?.UpdatePotionCount(inv.smallPotions, inv.mediumPotions, inv.largePotions);
             UIManager.Instance?.UpdateHUDPotions(inv.smallPotions, inv.mediumPotions, inv.largePotions);
         }
 
-        // Quests
+        // 체력 복원
+        if (hp != null)
+        {
+            hp.currentHealth = Mathf.Clamp(data.player.currentHealth, 0, hp.maxHealth);
+            UIManager.Instance?.UpdateHealthBar(hp.currentHealth, hp.maxHealth);
+            UIManager.Instance?.UpdateHUDHealth(hp.currentHealth, hp.maxHealth);
+        }
+
+        // 퀘스트
         if (qm != null)
         {
             foreach (var qs in data.quests)
@@ -187,7 +200,7 @@ public class SaveLoadManager : MonoBehaviour
             QuestBoardUI.Instance?.RefreshUI();
         }
 
-        // Regions / Stages
+        // 지역/스테이지
         if (sm != null)
         {
             foreach (var rs in data.regions)

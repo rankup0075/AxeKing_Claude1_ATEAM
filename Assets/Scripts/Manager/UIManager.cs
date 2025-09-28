@@ -198,32 +198,37 @@ public class UIManager : MonoBehaviour
     }
     public void ReturnToMainMenu()
     {
-        // 자동 저장
+        // === 자동 저장 ===
         if (GameManager.Instance != null)
-            GameManager.Instance.SavePlayerData();
+        {
+            GameManager.Instance.SavePlayerData(); // 기존 PlayerPrefs
+            SaveLoadManager.Instance?.SaveGame();  // [추가] JSON 저장
+        }
 
         var player = GameObject.FindWithTag("Player");
         if (player != null)
         {
             Destroy(player.transform.root.gameObject);
-            PlayerController.Instance = null; // 싱글톤 초기화
+            PlayerController.Instance = null;
         }
 
-        // 시간 재개 후 메인메뉴 로드
         Time.timeScale = 1f;
         SceneManager.LoadScene("MainMenu");
     }
 
     public void QuitGame()
     {
-        // 자동 저장
+        // === 자동 저장 ===
         if (GameManager.Instance != null)
-            GameManager.Instance.SavePlayerData();
+        {
+            GameManager.Instance.SavePlayerData(); // 기존 PlayerPrefs
+            SaveLoadManager.Instance?.SaveGame();  // [추가] JSON 저장
+        }
 
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
 #else
-        Application.Quit();
+    Application.Quit();
 #endif
     }
 
@@ -725,22 +730,22 @@ public class UIManager : MonoBehaviour
     // [NEW] PlayerHUD 재연결
     void ReassignPlayerHUD(Scene scene)
     {
-        // MainMenu에서는 HUD 필요 없음
         if (scene.name == "MainMenu")
         {
             playerHUD = null;
             return;
         }
 
+        // === GameManager에서 HUD를 관리하므로 여기서 프리팹 인스턴스화는 주석 처리 ===
+        /*
         if (playerHUD == null)
         {
-            // 씬에 없으면 프리팹 인스턴스화
             var prefab = Resources.Load<GameObject>("UI/PlayerHUDCanvas");
             if (prefab != null)
             {
                 var instance = Instantiate(prefab);
                 playerHUD = instance.transform.Find("PlayerHUD")?.gameObject;
-                DontDestroyOnLoad(instance); // 씬 전환 시 파괴되지 않게
+                DontDestroyOnLoad(instance);
                 Debug.Log("[UIManager] PlayerHUD 프리팹 인스턴스화 완료");
             }
             else
@@ -749,22 +754,19 @@ public class UIManager : MonoBehaviour
                 return;
             }
         }
+        */
 
         if (playerHUD == null)
             playerHUD = GameObject.Find("PlayerHUDCanvas/PlayerHUD");
 
         if (playerHUD != null)
         {
-            // 자식 오브젝트 찾아서 연결
             hudGoldText = playerHUD.transform.Find("UIContainer/GoldText")?.GetComponent<TextMeshProUGUI>();
-
             hudHealthBar = playerHUD.transform.Find("UIContainer/HP/Fill")?.GetComponent<Slider>();
             hudHealthText = playerHUD.transform.Find("UIContainer/HP/HealthText")?.GetComponent<TextMeshProUGUI>();
-
             hudSmallPotionText = playerHUD.transform.Find("UIContainer/SmallPotionCount/SmallPotionCountText")?.GetComponent<TextMeshProUGUI>();
             hudMediumPotionText = playerHUD.transform.Find("UIContainer/MiddlePotionCount/MiddlePotionCountText")?.GetComponent<TextMeshProUGUI>();
             hudLargePotionText = playerHUD.transform.Find("UIContainer/LargePotionCount/LargePotionCountText")?.GetComponent<TextMeshProUGUI>();
-
 
             Debug.Log("[UIManager] PlayerHUD 재연결 완료");
         }

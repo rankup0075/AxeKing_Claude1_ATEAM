@@ -68,14 +68,21 @@ public class GameManager : MonoBehaviour
         StartCoroutine(PlacePlayerAtLastPortalAfterDelay(scene.name));
 
         bool show = scene.name != "MainMenu";
+
+        // === HUD 생성 안전장치 추가 ===
         if (playerHUDInstance == null && playerHUDPrefab != null)
         {
             playerHUDInstance = Instantiate(playerHUDPrefab);
             DontDestroyOnLoad(playerHUDInstance);
-
-            // [NEW] HUD 초기화
             UIManager.Instance?.InitPlayerHUD();
         }
+        else
+        {
+            // 이미 존재하면 중복 생성하지 않고, MainMenu 여부만 체크해서 활성/비활성
+            if (playerHUDInstance != null)
+                Debug.Log("[GM] 기존 HUD 인스턴스 재사용");
+        }
+
         if (playerHUDInstance != null)
             playerHUDInstance.SetActive(show);
     }
