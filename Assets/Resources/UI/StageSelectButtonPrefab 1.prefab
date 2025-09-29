@@ -289,7 +289,6 @@ MonoBehaviour:
   stageImage: {fileID: 7571397145600358186}
   stageNameText: {fileID: 4766549300502279221}
   button: {fileID: 7957691684989832709}
-  stageIndexText: {fileID: 0}
   lockOverlay: {fileID: 280808775976028752}
 --- !u!1 &8186438976769156275
 GameObject:

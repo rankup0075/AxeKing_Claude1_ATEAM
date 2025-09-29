@@ -337,8 +337,30 @@ public class UIManager : MonoBehaviour
     {
         if (stageSelectPanel == null)
         {
-            Debug.LogError("[UIManager] StageSelectPanel이 씬에 없음");
-            return;
+            // Resources에서 StageSelectUICanvas 프리팹 로드
+            GameObject prefab = Resources.Load<GameObject>("UI/StageSelectUICanvas");
+            if (prefab != null)
+            {
+                GameObject panelInstance = Instantiate(prefab);
+                // DontDestroyOnLoad 방지 → UI는 씬마다 따로 두도록
+                panelInstance.transform.SetParent(null);
+
+                // StageSelectPanel 찾기
+                stageSelectPanel = panelInstance.transform.Find("StageSelectPanel")?.gameObject;
+
+                if (stageSelectPanel == null)
+                {
+                    Debug.LogError("[UIManager] StageSelectPanel을 프리팹에서 찾지 못했음");
+                    return;
+                }
+
+                Debug.Log("[UIManager] StageSelectPanel 프리팹에서 로드됨");
+            }
+            else
+            {
+                Debug.LogError("[UIManager] StageSelectUICanvas 프리팹을 Resources/UI 경로에서 찾을 수 없음");
+                return;
+            }
         }
 
         stageSelectPanel.SetActive(true);
@@ -353,15 +375,18 @@ public class UIManager : MonoBehaviour
             Debug.LogError("[UIManager] StageSelectUI.Instance가 null임");
         }
 
+        // 플레이어 조작 잠금
         var player = GameObject.FindWithTag("Player");
         if (player != null)
         {
             var controller = player.GetComponent<PlayerController>();
             if (controller != null) controller.canControl = false;
+
             var anim = player.GetComponent<Animator>();
             if (anim != null) anim.speed = 0f;
         }
     }
+
 
 
     public void CloseStageSelectPanel()
