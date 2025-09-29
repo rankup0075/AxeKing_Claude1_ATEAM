@@ -39,6 +39,10 @@ public class PlayerController : MonoBehaviour
     public static PlayerController Instance;
     [HideInInspector] public bool canControl = true; // 상점 등 외부 UI에서 제어할 때 사용
 
+    public bool IsGrounded => isGrounded;   // 읽기 전용 Grounded 상태
+    public bool IsJumping { get; private set; }  // 점프 중 여부
+
+
     void Awake()
     {
         Debug.Log($"[PlayerController] Awake 실행됨 - {gameObject.name} / Scene: {gameObject.scene.name}");
@@ -174,6 +178,7 @@ public class PlayerController : MonoBehaviour
             rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
             isGrounded = false;
+            IsJumping = true;   // 점프 상태 true
         }
     }
 
@@ -248,7 +253,11 @@ public class PlayerController : MonoBehaviour
     void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.CompareTag("Ground"))
+        {
             isGrounded = true;
+            IsJumping = false;  // 착지하면 점프 상태 해제
+        }
+           
     }
 
     void OnCollisionExit(Collision collision)
