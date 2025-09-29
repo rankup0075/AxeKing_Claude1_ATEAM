@@ -230,6 +230,93 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 265521025}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &265936754 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: c2b06b149f8d1314ab1748fb0c17ba3f, type: 3}
+  m_PrefabInstance: {fileID: 1964190853}
+  m_PrefabAsset: {fileID: 0}
+--- !u!95 &265936755 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 5866666021909216657, guid: c2b06b149f8d1314ab1748fb0c17ba3f, type: 3}
+  m_PrefabInstance: {fileID: 1964190853}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &265936757
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 265936754}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dec982212b71f0749b89140ed53ad0ef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WolfPetAnimator2D
+  anim: {fileID: 265936755}
+  speedParam: Speed
+  mirrorPlayerSpeed: 1
+  playerSpeedParam: Speed
+  idleThreshold: 0.05
+  runThreshold: 2.4
+  lerpSpeed: 5
+--- !u!114 &265936758
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 265936754}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 46679d5936bac9a40a640bc066b2f93d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WolfPetFollower2_5D
+  target: {fileID: 0}
+  followDistance: 1.6
+  desiredOffsetX: -1
+  walkFollowSpeed: 3.8
+  runFollowSpeed: 6
+  accel: 12
+  decel: 16
+  lockZ: 1
+  lockY: 1
+  yLock: 1
+  useStartYawAsRight: 1
+  rightYaw: 0
+  leftYaw: 180
+  rotateSpeed: 1080
+  matchPlayerSpeed: 1
+  playerSpeedParam: Speed
+  playerWalkVxThreshold: 0.4
+  playerRunVxThreshold: 3
+  snapIfFartherThan: 25
+--- !u!54 &265936759
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 265936754}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &455355872
 GameObject:
   m_ObjectHideFlags: 0
@@ -1562,7 +1649,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: c2b06b149f8d1314ab1748fb0c17ba3f, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -23.58
+      value: -23.61535
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: c2b06b149f8d1314ab1748fb0c17ba3f, type: 3}
       propertyPath: m_LocalPosition.y
@@ -1570,7 +1657,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: c2b06b149f8d1314ab1748fb0c17ba3f, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -1.63
+      value: -1.6307384
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: c2b06b149f8d1314ab1748fb0c17ba3f, type: 3}
       propertyPath: m_LocalRotation.w
@@ -1604,10 +1691,23 @@ PrefabInstance:
       propertyPath: m_Name
       value: Wolf
       objectReference: {fileID: 0}
+    - target: {fileID: 5866666021909216657, guid: c2b06b149f8d1314ab1748fb0c17ba3f, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 18e9c2afcfdaee74f8f552fbd119a690, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: c2b06b149f8d1314ab1748fb0c17ba3f, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 265936759}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: c2b06b149f8d1314ab1748fb0c17ba3f, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 265936758}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: c2b06b149f8d1314ab1748fb0c17ba3f, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 265936757}
   m_SourcePrefab: {fileID: 100100000, guid: c2b06b149f8d1314ab1748fb0c17ba3f, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
