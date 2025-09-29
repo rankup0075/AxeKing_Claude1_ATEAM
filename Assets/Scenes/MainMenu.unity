@@ -3589,6 +3589,7 @@ MonoBehaviour:
   - portalID: WarehouseToTown
     position: {x: 5.5, y: 0, z: 0}
   playerHUDPrefab: {fileID: 8735306787515297675, guid: dfa4d543094b4ea4c8ccfd501121a1f2, type: 3}
+  petPrefab: {fileID: 4439164865027620757, guid: fca3283a5a5f98a46a4475fc6d538f79, type: 3}
 --- !u!4 &959422109
 Transform:
   m_ObjectHideFlags: 0

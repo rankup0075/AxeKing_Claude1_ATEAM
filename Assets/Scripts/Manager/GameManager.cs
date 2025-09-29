@@ -36,6 +36,11 @@ public class GameManager : MonoBehaviour
     public GameObject playerHUDPrefab;
     GameObject playerHUDInstance;
 
+    // === [NEW] 펫 관련 ===
+    [Header("Pet Settings")]
+    public GameObject petPrefab;
+    private GameObject petInstance;
+
     void OnEnable() => SceneManager.sceneLoaded += OnSceneLoaded;
     void OnDisable() => SceneManager.sceneLoaded -= OnSceneLoaded;
 
@@ -85,6 +90,35 @@ public class GameManager : MonoBehaviour
 
         if (playerHUDInstance != null)
             playerHUDInstance.SetActive(show);
+
+        if (scene.name != "MainMenu")
+        {
+            if (petPrefab != null && petInstance == null)
+            {
+                // 플레이어 기준 스폰
+                Vector3 spawnPos = PlayerController.Instance != null
+                    ? PlayerController.Instance.transform.position + new Vector3(1f, 0f, -1f)
+                    : Vector3.zero;
+
+                petInstance = Instantiate(petPrefab, spawnPos, Quaternion.identity);
+                DontDestroyOnLoad(petInstance);
+                Debug.Log($"[GM] 펫 생성 완료: {petPrefab.name}");
+            }
+            else if (petInstance != null && PlayerController.Instance != null)
+            {
+                // 씬이 바뀌면 항상 플레이어 옆으로 보정
+                petInstance.transform.position = PlayerController.Instance.transform.position + new Vector3(1f, 0f, -1f);
+
+                if (petInstance.TryGetComponent<Rigidbody>(out var petRb))
+                {
+                    petRb.linearVelocity = Vector3.zero;
+                    petRb.angularVelocity = Vector3.zero;
+                    petRb.Sleep();
+                }
+
+                Debug.Log("[GM] 씬 로드 후 펫 위치 보정 완료");
+            }
+        }
     }
 
     // ==========================
@@ -215,6 +249,7 @@ public class GameManager : MonoBehaviour
             // 좌표 고정
             player.transform.position = match.position;
 
+
             // Rigidbody 안정화
             if (player.TryGetComponent<Rigidbody>(out var rb))
             {
@@ -228,6 +263,21 @@ public class GameManager : MonoBehaviour
                 StartCoroutine(FreezePlayerControl(pc, 0.1f));
 
             Debug.Log($"[GM] '{lastPortalID}' 고정 좌표 적용 완료 → {match.position}");
+
+            if (petInstance != null)
+            {
+                Vector3 petPos = match.position + new Vector3(1f, 0f, -1f);
+                petInstance.transform.position = petPos;
+
+                if (petInstance.TryGetComponent<Rigidbody>(out var petRb))
+                {
+                    petRb.linearVelocity = Vector3.zero;
+                    petRb.angularVelocity = Vector3.zero;
+                    petRb.Sleep();
+                }
+
+                Debug.Log($"[GM] 펫 위치 보정 완료 → {petPos}");
+            }
         }
         else
         {
