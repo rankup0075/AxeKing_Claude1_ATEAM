@@ -14,6 +14,12 @@ public class PlayerController : MonoBehaviour
     public float attackCooldown = 0.5f;     // 공격 간격
     public float hitStunDuration = 0.5f;    // 피격 후 경직 시간
 
+    public float attackRange = 2f;      // 공격 범위 반경
+    public LayerMask enemyLayers;       // 적 레이어 마스크 (인스펙터에서 "Enemy" 레이어 지정)
+
+    [Header("Attack Point")]
+    public Transform attackPoint;
+
     // 컴포넌트
     private Rigidbody rb;
     private Animator animator;
@@ -207,16 +213,24 @@ public class PlayerController : MonoBehaviour
         animator.ResetTrigger(attackHash);
     }
 
-    public void ProcessAttackHit() // 애니메이션 이벤트
+    public void ProcessAttackHit()
     {
-        Collider[] enemies = Physics.OverlapSphere(transform.position + transform.forward, 2f);
-        foreach (var enemy in enemies)
+        if (attackPoint == null)
         {
-            if (enemy.CompareTag("Enemy"))
+            Debug.LogWarning("AttackPoint가 지정되지 않았습니다.");
+            return;
+        }
+
+        // 지정한 위치를 중심으로 원형 범위 내 적 탐색
+        Collider[] enemies = Physics.OverlapSphere(attackPoint.position, attackRange, enemyLayers);
+
+        foreach (Collider enemy in enemies)
+        {
+            EnemyHealth enemyHealth = enemy.GetComponent<EnemyHealth>();
+            if (enemyHealth != null)
             {
-                //스테이지 및 적 추가 후 주석 풀기
-                //EnemyHealth enemyHealth = enemy.GetComponent<EnemyHealth>();
-                //if (enemyHealth != null) enemyHealth.TakeDamage(attackDamage);
+                enemyHealth.TakeDamage(attackDamage);
+                Debug.Log($"[Player] {enemy.name}에게 {attackDamage} 데미지");
             }
         }
     }
@@ -320,5 +334,9 @@ public class PlayerController : MonoBehaviour
 
         Gizmos.color = Color.blue;
         Gizmos.DrawWireSphere(transform.position, 1.5f);
+
+        if (attackPoint == null) return;
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireSphere(attackPoint.position, attackRange);
     }
 }

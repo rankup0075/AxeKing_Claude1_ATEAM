@@ -14,10 +14,18 @@ public class Portal : MonoBehaviour
     public EquipmentShopUI equipmentShopUI;
     public WarehouseUI warehouseUI;
 
-    // 추가: 스폰 포인트
+    [Header("Stage Clear Options")]
+    [SerializeField] private bool completeStageOnUse = false;  // 마지막 라운드에서만 true
+    [SerializeField] private string stageIdToComplete = "";    // 스테이지1의 마지막 라운드 포탈이라면 "1-1" 입력.
+
+    [Header("Portal Visuals")]
+    [SerializeField] private ParticleSystem portalParticles;
+    [SerializeField] private Light portalLight;
+
+
     [Header("Spawn Point")]
-    public Transform spawnPoint;
-    
+    public Transform spawnPoint;   // 새 씬에서 플레이어 위치 지정용
+
     public enum PortalType
     {
         SceneTransition,
@@ -26,7 +34,8 @@ public class Portal : MonoBehaviour
         QuestBoard,
         PotionShop,
         EquipmentShop,
-        WareHouseChest
+        WareHouseChest,
+        RoundTransition
     }
 
     private bool playerInRange = false;
@@ -49,6 +58,22 @@ public class Portal : MonoBehaviour
         }
     }
 
+    public void SetActiveState(bool active)
+    {
+        isUnlocked = active; // 상호작용 여부
+
+        if (portalParticles != null)
+        {
+            if (active && !portalParticles.isPlaying) portalParticles.Play();
+            else if (!active && portalParticles.isPlaying) portalParticles.Stop();
+        }
+
+        if (portalLight != null)
+        {
+            portalLight.enabled = active;
+        }
+    }
+
     public void Interact()
     {
         if (!playerInRange || !isUnlocked) return;
@@ -64,6 +89,10 @@ public class Portal : MonoBehaviour
                 break;
 
             case PortalType.StageSelect:
+                // [추가] Town이든 Stage든 구분 없이 포탈 위치 저장
+                if (GameManager.Instance != null)
+                    GameManager.Instance.SetLastPortalID(portalID);
+
                 UIManager.Instance?.OpenStageSelectPanel();
                 break;
 
@@ -86,9 +115,9 @@ public class Portal : MonoBehaviour
                 else Debug.LogWarning("[Portal] warehouseUI 미연결");
                 break;
 
-            //case PortalType.Shop:
-            //    UIManager.Instance?.OpenShopUI();
-            //    break;
+            case PortalType.RoundTransition:
+                SceneManager.LoadScene(targetScene); // 라운드 간 이동
+                break;
         }
     }
 
@@ -108,6 +137,15 @@ public class Portal : MonoBehaviour
 
         // 전환
         Time.timeScale = 1f; // 혹시 멈춰있다면 복구
+        SceneManager.LoadScene(targetScene);
+
+        if (completeStageOnUse && StageManager.Instance != null && !string.IsNullOrEmpty(stageIdToComplete))
+        {
+            StageManager.Instance.CompleteStage(stageIdToComplete);
+        }
+
+        GameManager.Instance?.SavePlayerData();
+        Time.timeScale = 1f;
         SceneManager.LoadScene(targetScene);
     }
 

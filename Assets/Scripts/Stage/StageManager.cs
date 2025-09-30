@@ -147,4 +147,9 @@ public class StageManager : MonoBehaviour
             if (anim != null) anim.speed = 1f;
         }
     }
+    public void ReturnToTown()
+    {
+        Debug.Log("[StageManager] ∏∂¿ª∑Œ ±Õ»Ø");
+        SceneManager.LoadScene("Town");
+    }
 }

@@ -41,6 +41,14 @@ public class GameManager : MonoBehaviour
     public GameObject petPrefab;
     private GameObject petInstance;
 
+    [Header("Player 관리")]
+    public GameObject playerPrefab;   // PlayerRoot 프리팹
+    private GameObject playerInstance;
+
+    //보스 및 포탈 관리
+    private HashSet<string> clearedRounds = new HashSet<string>();
+    private HashSet<string> defeatedBosses = new HashSet<string>();
+
     void OnEnable() => SceneManager.sceneLoaded += OnSceneLoaded;
     void OnDisable() => SceneManager.sceneLoaded -= OnSceneLoaded;
 
@@ -66,9 +74,49 @@ public class GameManager : MonoBehaviour
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
+    /// <summary>
+    /// 보스 및 포탈 관리 로직
+    /// </summary>
+    public void SetRoundCleared(string roundId)
+    {
+        clearedRounds.Add(roundId);
+    }
+
+    public bool IsRoundCleared(string roundId)
+    {
+        return clearedRounds.Contains(roundId);
+    }
+
+    public void SetBossDefeated(string bossId)
+    {
+        defeatedBosses.Add(bossId);
+    }
+
+    public bool IsBossDefeated(string bossId)
+    {
+        return defeatedBosses.Contains(bossId);
+    }
+
+
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         Debug.Log($"[GM] 씬 로드됨: {scene.name}, lastPortalID={lastPortalID}");
+
+
+        if (playerInstance == null && playerPrefab != null && scene.name != "MainMenu")
+        {
+            Vector3 spawnPos = Vector3.zero;
+
+            if (scene.name == "Town")
+            {
+                // Town 처음 진입 → 기본 스폰 좌표 강제 지정
+                spawnPos = new Vector3(-23f, 0f, 0f); // 원하는 위치로 바꿔라
+            }
+            playerInstance = Instantiate(playerPrefab);
+            DontDestroyOnLoad(playerInstance);
+            Debug.Log($"[GM] Player 프리팹 생성 완료 → {playerInstance.name}");
+        }
+
         StopAllCoroutines();
         StartCoroutine(PlacePlayerAtLastPortalAfterDelay(scene.name));
 
@@ -223,6 +271,7 @@ public class GameManager : MonoBehaviour
         Debug.Log($"[GM] 마지막 포탈 ID 저장: {lastPortalID}");
     }
 
+
     private IEnumerator PlacePlayerAtLastPortalAfterDelay(string sceneName)
     {
         yield return null;
@@ -249,7 +298,6 @@ public class GameManager : MonoBehaviour
             // 좌표 고정
             player.transform.position = match.position;
 
-
             // Rigidbody 안정화
             if (player.TryGetComponent<Rigidbody>(out var rb))
             {
@@ -264,6 +312,7 @@ public class GameManager : MonoBehaviour
 
             Debug.Log($"[GM] '{lastPortalID}' 고정 좌표 적용 완료 → {match.position}");
 
+            // 펫 보정
             if (petInstance != null)
             {
                 Vector3 petPos = match.position + new Vector3(1f, 0f, -1f);
@@ -282,6 +331,22 @@ public class GameManager : MonoBehaviour
         else
         {
             Debug.LogWarning($"[GM] '{lastPortalID}' 매핑된 좌표 없음 (씬: {sceneName})");
+
+            // [추가] 매핑이 없을 경우: Town으로 돌아왔을 때 StageSelect 포탈로 강제 이동
+            if (sceneName == "Town")
+            {
+                // [NEW] 최신 API 사용
+                var fallbackPortals = GameObject.FindObjectsByType<Portal>(FindObjectsSortMode.None);
+                foreach (var p in fallbackPortals)
+                {
+                    if (p.portalType == Portal.PortalType.StageSelect)
+                    {
+                        player.transform.position = p.transform.position;
+                        Debug.Log($"[GM] StageSelect 포탈 위치로 보정 완료 → {p.portalID}");
+                        break;
+                    }
+                }
+            }
         }
     }
 

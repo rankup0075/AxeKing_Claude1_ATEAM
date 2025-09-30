@@ -1,7 +1,8 @@
 // StageSelectUI.cs  [최신본]
-using UnityEngine;
-using UnityEngine.UI;
 using TMPro;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class StageSelectUI : MonoBehaviour
 {
@@ -28,6 +29,9 @@ public class StageSelectUI : MonoBehaviour
     [Header("Stage UI")]
     public Transform stageContent;         // StageView/Viewport/Content
     public GameObject stageButtonPrefab;   // StageButtonUI 포함 프리팹
+
+    [Header("Extra Buttons")]
+    public Button returnToTownButton;
 
     private RegionData currentRegion;
 
@@ -58,25 +62,23 @@ public class StageSelectUI : MonoBehaviour
         stageView.SetActive(false);
 
         PopulateRegions();
+
+        if (returnToTownButton != null)
+        {
+            // [수정] 현재 씬에 따라 버튼 보이기/숨기기
+            string currentScene = SceneManager.GetActiveScene().name;
+            bool isStageScene = currentScene.StartsWith("Stage");
+            returnToTownButton.gameObject.SetActive(isStageScene);
+
+            returnToTownButton.onClick.RemoveAllListeners();
+            returnToTownButton.onClick.AddListener(() =>
+            {
+                UIManager.Instance.CloseStageSelectPanel();
+                StageManager.Instance.ReturnToTown();
+            });
+        }
     }
 
-    //public void Close()
-    //{
-    //    // 루트까지 비활성. UIManager 쪽에서 다시 건드릴 필요 없음.
-    //    stageView.SetActive(false);
-    //    regionDetailView.SetActive(false);
-    //    regionView.SetActive(false);
-    //    stageSelectPanel.SetActive(false);
-    //}
-
-    //// ===== ESC 단계별 처리 =====
-    //public void HandleEscape()
-    //{
-    //    if (stageView.activeSelf) { stageView.SetActive(false); regionDetailView.SetActive(true); return; }
-    //    if (regionDetailView.activeSelf) { regionDetailView.SetActive(false); OpenRegionView(); return; }
-    //    if (regionView.activeSelf) { Close(); return; }
-    //    Close();
-    //}
     public void Close()
     {
         UIManager.Instance?.CloseStageSelectPanel();
