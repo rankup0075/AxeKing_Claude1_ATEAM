@@ -1,8 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using static Portal;
 
 [Serializable]
 public class PortalSpawnPoint
@@ -284,71 +286,113 @@ public class GameManager : MonoBehaviour
             yield break;
         }
 
+        // ===============================
+        // [NEW] Town 처리
+        // ===============================
+        if (sceneName == "Town")
+        {
+            if (string.IsNullOrEmpty(lastPortalID))
+            {
+                // MainMenu → Town : TownSpawnPoint 사용
+                var townSpawn = GameObject.Find("TownSpawnPoint");
+                if (townSpawn != null)
+                {
+                    player.transform.position = townSpawn.transform.position;
+                    Debug.Log($"[GM] TownSpawnPoint 위치로 스폰 → {townSpawn.transform.position}");
+                    AdjustPetPosition(townSpawn.transform.position); // [NEW]
+                }
+            }
+            else
+            {
+                // Stage → Town 귀환 : 마지막 포탈 기준
+                var portals = GameObject.FindObjectsByType<Portal>(FindObjectsSortMode.None);
+                var match = portals.FirstOrDefault(p => p.portalID == lastPortalID);
+                if (match != null)
+                {
+                    player.transform.position = match.transform.position;
+                    Debug.Log($"[GM] Town 귀환 '{lastPortalID}' 포탈 위치로 스폰");
+                }
+            }
+            yield break;
+        }
+
+        // ===============================
+        // [NEW] Stage 처리
+        // ===============================
+        if (sceneName.StartsWith("Stage"))
+        {
+            Portal lastPortal = null;
+            if (!string.IsNullOrEmpty(lastPortalID))
+            {
+                var portals = GameObject.FindObjectsByType<Portal>(FindObjectsSortMode.None);
+                lastPortal = portals.FirstOrDefault(p => p.portalID == lastPortalID);
+            }
+
+            if (lastPortal != null && lastPortal.portalDirection == Portal.PortalDirection.Backward)
+            {
+                // 역방향 → 마지막 포탈 위치 사용
+                player.transform.position = lastPortal.transform.position;
+                Debug.Log($"[GM] 역방향 입장 → '{lastPortalID}' 포탈 위치로 스폰");
+                AdjustPetPosition(lastPortal.transform.position); // [NEW]
+
+            }
+            else
+            {
+                // 정방향 → PlayerSpawnPoint 우선
+                var spawnPoint = GameObject.Find("PlayerSpawnPoint");
+                if (spawnPoint != null)
+                {
+                    player.transform.position = spawnPoint.transform.position;
+                    Debug.Log($"[GM] 정방향 입장 → PlayerSpawnPoint 위치로 스폰 → {spawnPoint.transform.position}");
+                    AdjustPetPosition(spawnPoint.transform.position); // [NEW]
+                }
+                else if (lastPortal != null)
+                {
+                    // PlayerSpawnPoint 없을 경우 포탈 좌표 fallback
+                    player.transform.position = lastPortal.transform.position;
+                    Debug.Log($"[GM] PlayerSpawnPoint 없음 → '{lastPortalID}' 포탈 위치로 fallback");
+                    AdjustPetPosition(spawnPoint.transform.position); // [NEW]
+                }
+            }
+            yield break;
+        }
+
+        // ===============================
+        // [기존] 기타 fallback
+        // ===============================
         if (string.IsNullOrEmpty(lastPortalID))
         {
             Debug.Log("[GM] lastPortalID 없음 → 위치 보정 스킵");
             yield break;
         }
 
-        // === Inspector에서 미리 정의한 좌표 찾기 ===
-        PortalSpawnPoint match = spawnPoints.Find(p => p.portalID == lastPortalID);
-
-        if (match != null)
+        var fallbackMatch = spawnPoints.Find(p => p.portalID == lastPortalID);
+        if (fallbackMatch != null)
         {
-            // 좌표 고정
-            player.transform.position = match.position;
-
-            // Rigidbody 안정화
-            if (player.TryGetComponent<Rigidbody>(out var rb))
-            {
-                rb.linearVelocity = Vector3.zero;
-                rb.angularVelocity = Vector3.zero;
-                rb.Sleep();
-            }
-
-            // PlayerController 입력 잠시 차단
-            if (player.TryGetComponent<PlayerController>(out var pc))
-                StartCoroutine(FreezePlayerControl(pc, 0.1f));
-
-            Debug.Log($"[GM] '{lastPortalID}' 고정 좌표 적용 완료 → {match.position}");
-
-            // 펫 보정
-            if (petInstance != null)
-            {
-                Vector3 petPos = match.position + new Vector3(1f, 0f, -1f);
-                petInstance.transform.position = petPos;
-
-                if (petInstance.TryGetComponent<Rigidbody>(out var petRb))
-                {
-                    petRb.linearVelocity = Vector3.zero;
-                    petRb.angularVelocity = Vector3.zero;
-                    petRb.Sleep();
-                }
-
-                Debug.Log($"[GM] 펫 위치 보정 완료 → {petPos}");
-            }
-        }
-        else
-        {
-            Debug.LogWarning($"[GM] '{lastPortalID}' 매핑된 좌표 없음 (씬: {sceneName})");
-
-            // [추가] 매핑이 없을 경우: Town으로 돌아왔을 때 StageSelect 포탈로 강제 이동
-            if (sceneName == "Town")
-            {
-                // [NEW] 최신 API 사용
-                var fallbackPortals = GameObject.FindObjectsByType<Portal>(FindObjectsSortMode.None);
-                foreach (var p in fallbackPortals)
-                {
-                    if (p.portalType == Portal.PortalType.StageSelect)
-                    {
-                        player.transform.position = p.transform.position;
-                        Debug.Log($"[GM] StageSelect 포탈 위치로 보정 완료 → {p.portalID}");
-                        break;
-                    }
-                }
-            }
+            player.transform.position = fallbackMatch.position;
+            Debug.Log($"[GM] fallback: '{lastPortalID}' 좌표 적용 → {fallbackMatch.position}");
+            AdjustPetPosition(fallbackMatch.position); // [NEW]
         }
     }
+
+    private void AdjustPetPosition(Vector3 basePos)
+    {
+        if (petInstance == null) return;
+
+        Vector3 petPos = basePos + new Vector3(1f, 0f, -1f);
+        petInstance.transform.position = petPos;
+
+        if (petInstance.TryGetComponent<Rigidbody>(out var petRb))
+        {
+            petRb.linearVelocity = Vector3.zero;
+            petRb.angularVelocity = Vector3.zero;
+            petRb.Sleep();
+        }
+
+        Debug.Log($"[GM] 펫 위치 보정 완료 → {petPos}");
+    }
+
+
 
     private IEnumerator FreezePlayerControl(PlayerController pc, float duration)
     {

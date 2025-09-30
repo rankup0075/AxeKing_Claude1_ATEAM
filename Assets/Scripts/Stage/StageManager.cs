@@ -11,14 +11,19 @@ public class StageManager : MonoBehaviour
     public List<StageData> stages = new List<StageData>(); // [NOTE] 전역 스테이지 리스트 (자동 동기화용)
     private Vector3 pendingSpawnPos = Vector3.zero; // [NEW] 다음 씬에서 쓸 위치
 
+
     void Awake()
     {
         if (Instance == null)
         {
             Instance = this;
-            RefreshStageList(); // [NEW] Awake 시 자동 동기화
+            DontDestroyOnLoad(gameObject); // [NEW] 씬 전환에도 살아남음
         }
-        else Destroy(gameObject);
+        else
+        {
+            Destroy(gameObject);
+        }
+   
     }
 
     /// <summary>

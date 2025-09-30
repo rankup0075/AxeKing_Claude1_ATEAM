@@ -8,6 +8,7 @@ public class Portal : MonoBehaviour
     public string portalID;                  // [NEW] 포탈 고유 ID (Town과 상점씬에서 “같은 의미”로 맞춰주세요)
     public PortalType portalType;
     public bool isUnlocked = true;
+    public PortalDirection portalDirection = PortalDirection.Forward; // [NEW]
 
     [Header("Shop Portal Settings")]
     public PotionShopUI potionShopUI;
@@ -26,6 +27,13 @@ public class Portal : MonoBehaviour
     [Header("Spawn Point")]
     public Transform spawnPoint;   // 새 씬에서 플레이어 위치 지정용
 
+
+    public enum PortalDirection
+    {
+        Forward,
+        Backward
+    }
+
     public enum PortalType
     {
         SceneTransition,
@@ -35,7 +43,8 @@ public class Portal : MonoBehaviour
         PotionShop,
         EquipmentShop,
         WareHouseChest,
-        RoundTransition
+        RoundTransition,
+        StageClear
     }
 
     private bool playerInRange = false;
@@ -117,6 +126,18 @@ public class Portal : MonoBehaviour
 
             case PortalType.RoundTransition:
                 SceneManager.LoadScene(targetScene); // 라운드 간 이동
+                break;
+
+            case PortalType.StageClear:
+                // 보스 라운드 종료 포탈
+                if (completeStageOnUse && StageManager.Instance != null && !string.IsNullOrEmpty(stageIdToComplete))
+                {
+                    StageManager.Instance.CompleteStage(stageIdToComplete);
+                    GameManager.Instance?.SavePlayerData();
+                }
+
+                // 스테이지 선택창 열기
+                UIManager.Instance?.OpenStageSelectPanel();
                 break;
         }
     }

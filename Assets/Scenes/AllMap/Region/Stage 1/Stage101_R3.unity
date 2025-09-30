@@ -5163,17 +5163,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ecf3904b73d18814282dfd84425b61e4, type: 3}
---- !u!114 &220877350 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 879583673320216022, guid: ecf3904b73d18814282dfd84425b61e4, type: 3}
-  m_PrefabInstance: {fileID: 220877349}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fd3f088f49b8021489944ac2a5e7964c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Portal
 --- !u!108 &220877351 stripped
 Light:
   m_CorrespondingSourceObject: {fileID: 8741395598979090187, guid: ecf3904b73d18814282dfd84425b61e4, type: 3}
@@ -5804,7 +5793,7 @@ MonoBehaviour:
   roundId: Stage101_R3
   enemies:
   - {fileID: 1693877700}
-  exitPortal: {fileID: 220877350}
+  exitPortal: {fileID: 1148194413}
 --- !u!4 &747323081
 Transform:
   m_ObjectHideFlags: 0
@@ -5947,6 +5936,37 @@ Light:
   m_LightUnit: 1
   m_LuxAtDistance: 1
   m_EnableSpotReflector: 1
+--- !u!1 &1006964422
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1006964423}
+  m_Layer: 0
+  m_Name: PlayerSpawnPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1006964423
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1006964422}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -22, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1148194412
 GameObject:
   m_ObjectHideFlags: 0
@@ -5981,13 +6001,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Portal
   targetScene: 
   portalID: StageToStageSelect
-  portalType: 1
+  portalType: 8
   isUnlocked: 0
   potionShopUI: {fileID: 0}
   equipmentShopUI: {fileID: 0}
   warehouseUI: {fileID: 0}
-  completeStageOnUse: 0
-  stageIdToComplete: 
+  completeStageOnUse: 1
+  stageIdToComplete: Stage101
   portalParticles: {fileID: 121816742}
   portalLight: {fileID: 782692130}
   spawnPoint: {fileID: 0}
@@ -6687,3 +6707,4 @@ SceneRoots:
   - {fileID: 220877349}
   - {fileID: 747323081}
   - {fileID: 1693877704}
+  - {fileID: 1006964423}

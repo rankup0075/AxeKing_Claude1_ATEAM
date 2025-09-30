@@ -55,35 +55,35 @@ MonoBehaviour:
     - rewardName: "\uACE0\uBE14\uB9B0\uC758 \uAC00\uC8FD"
       icon: {fileID: 0}
     stages:
-    - stageId: Stage1-1
+    - stageId: Stage101
       stageName: "\uC232\uC758 \uC785\uAD6C 1"
       sceneName: Stage101
       thumbnail: {fileID: 0}
       isUnlocked: 1
       isCompleted: 0
       spawnPosition: {x: -20, y: 0, z: 0}
-    - stageId: Stage1-2
+    - stageId: Stage102
       stageName: "\uC232\uC758 \uC785\uAD6C 2"
       sceneName: 
       thumbnail: {fileID: 0}
       isUnlocked: 0
       isCompleted: 0
       spawnPosition: {x: 0, y: 0, z: 0}
-    - stageId: Stage1-3
+    - stageId: Stage103
       stageName: "\uC232\uC758 \uC785\uAD6C 3"
       sceneName: 
       thumbnail: {fileID: 0}
       isUnlocked: 0
       isCompleted: 0
       spawnPosition: {x: 0, y: 0, z: 0}
-    - stageId: Stage1-4
+    - stageId: Stage104
       stageName: "\uC232\uC758 \uC785\uAD6C 5"
       sceneName: 
       thumbnail: {fileID: 0}
       isUnlocked: 0
       isCompleted: 0
       spawnPosition: {x: 0, y: 0, z: 0}
-    - stageId: Stage1-5
+    - stageId: Stage105
       stageName: "\uC232\uC758 \uC785\uAD6C 5"
       sceneName: 
       thumbnail: {fileID: 0}
@@ -102,35 +102,35 @@ MonoBehaviour:
     - rewardName: "\uACE8\uB818\uC758 \uD30C\uD3B8"
       icon: {fileID: 0}
     stages:
-    - stageId: Stage2-1
+    - stageId: Stage201
       stageName: "\uB3CC \uBB34\uB364 1"
       sceneName: 
       thumbnail: {fileID: 0}
       isUnlocked: 0
       isCompleted: 0
       spawnPosition: {x: 0, y: 0, z: 0}
-    - stageId: Stage2-2
+    - stageId: Stage202
       stageName: "\uB3CC \uBB34\uB364 2"
       sceneName: 
       thumbnail: {fileID: 0}
       isUnlocked: 0
       isCompleted: 0
       spawnPosition: {x: 0, y: 0, z: 0}
-    - stageId: Stage2-3
+    - stageId: Stage203
       stageName: "\uB3CC \uBB34\uB364 3"
       sceneName: 
       thumbnail: {fileID: 0}
       isUnlocked: 0
       isCompleted: 0
       spawnPosition: {x: 0, y: 0, z: 0}
-    - stageId: Stage2-4
+    - stageId: Stage204
       stageName: "\uB3CC \uBB34\uB364 4"
       sceneName: 
       thumbnail: {fileID: 0}
       isUnlocked: 0
       isCompleted: 0
       spawnPosition: {x: 0, y: 0, z: 0}
-    - stageId: Stage2-5
+    - stageId: Stage205
       stageName: "\uB3CC \uBB34\uB364 1"
       sceneName: 
       thumbnail: {fileID: 0}
@@ -149,35 +149,35 @@ MonoBehaviour:
     - rewardName: "\uD654\uC5FC \uAD6C\uC2AC"
       icon: {fileID: 0}
     stages:
-    - stageId: Stage3-1
+    - stageId: Stage301
       stageName: "\uD654\uC5FC \uC815\uB839\uB4E4\uC758 \uB180\uC774\uD130 1"
       sceneName: 
       thumbnail: {fileID: 0}
       isUnlocked: 0
       isCompleted: 0
       spawnPosition: {x: 0, y: 0, z: 0}
-    - stageId: Stage3-2
+    - stageId: Stage302
       stageName: "\uD654\uC5FC \uC815\uB839\uB4E4\uC758 \uB180\uC774\uD130 2"
       sceneName: 
       thumbnail: {fileID: 0}
       isUnlocked: 0
       isCompleted: 0
       spawnPosition: {x: 0, y: 0, z: 0}
-    - stageId: Stage3-3
+    - stageId: Stage303
       stageName: "\uD654\uC5FC \uC815\uB839\uB4E4\uC758 \uB180\uC774\uD130 3"
       sceneName: 
       thumbnail: {fileID: 0}
       isUnlocked: 0
       isCompleted: 0
       spawnPosition: {x: 0, y: 0, z: 0}
-    - stageId: Stage3-4
+    - stageId: Stage304
       stageName: "\uD654\uC5FC \uC815\uB839\uB4E4\uC758 \uB180\uC774\uD130 4"
       sceneName: 
       thumbnail: {fileID: 0}
       isUnlocked: 0
       isCompleted: 0
       spawnPosition: {x: 0, y: 0, z: 0}
-    - stageId: Stage3-5
+    - stageId: Stage305
       stageName: "\uD654\uC5FC \uC815\uB839\uB4E4\uC758 \uB180\uC774\uD130 5"
       sceneName: 
       thumbnail: {fileID: 0}
