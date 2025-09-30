@@ -5585,7 +5585,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoundController
   roundId: Stage101_R2
-  enemies: []
+  enemies:
+  - {fileID: 78580896}
   exitPortal: {fileID: 220877350}
 --- !u!4 &747323081
 Transform:
@@ -6684,5 +6685,5 @@ SceneRoots:
   - {fileID: 1148194417}
   - {fileID: 1656661113}
   - {fileID: 220877349}
-  - {fileID: 747323081}
   - {fileID: 78580900}
+  - {fileID: 747323081}

@@ -5802,7 +5802,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoundController
   roundId: Stage101_R3
-  enemies: []
+  enemies:
+  - {fileID: 1693877700}
   exitPortal: {fileID: 220877350}
 --- !u!4 &747323081
 Transform:
