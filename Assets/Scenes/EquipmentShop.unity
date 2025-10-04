@@ -5532,7 +5532,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 020adbc5ef8ccae47b6af12200a1131c, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: -0.194
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 020adbc5ef8ccae47b6af12200a1131c, type: 3}
       propertyPath: m_LocalRotation.w
@@ -6532,6 +6532,37 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!1 &559406111
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 559406112}
+  m_Layer: 0
+  m_Name: PlayerSpawnPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &559406112
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 559406111}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -17.5, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &658143824
 GameObject:
   m_ObjectHideFlags: 0
@@ -7195,7 +7226,7 @@ Transform:
   m_GameObject: {fileID: 935319091}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: -3, y: 0, z: 2}
+  m_LocalPosition: {x: 1.49, y: 0, z: 2}
   m_LocalScale: {x: 5, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -8067,7 +8098,7 @@ Transform:
   m_GameObject: {fileID: 1294845893}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -8.5, y: 0, z: 0}
+  m_LocalPosition: {x: -17.5, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 0.01, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -8088,13 +8119,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Portal
   targetScene: Town
-  portalID: EquipmentShopToTown
+  portalID: Town_EquipmentShop
   portalType: 0
   isUnlocked: 1
+  portalDirection: 1
   potionShopUI: {fileID: 0}
   equipmentShopUI: {fileID: 0}
   warehouseUI: {fileID: 0}
-  spawnPoint: {fileID: 0}
+  completeStageOnUse: 0
+  stageIdToComplete: 
+  portalParticles: {fileID: 0}
+  portalLight: {fileID: 0}
+  spawnPoint: {fileID: 559406112}
+  targetSpawnName: 
+  townExitPointName: EquipmentShopExitPoint
 --- !u!136 &1294845896
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -8286,8 +8324,8 @@ MonoBehaviour:
   smoothSpeed: 0.125
   offset: {x: 0, y: 1.8, z: -5}
   useBounds: 1
-  minX: -6
-  maxX: 6
+  minX: -14
+  maxX: -4.5
   minY: 0
   maxY: 100
 --- !u!114 &1411303131
@@ -8481,7 +8519,7 @@ Transform:
   m_GameObject: {fileID: 1437696710}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -8.772, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -8690,7 +8728,7 @@ Transform:
   m_GameObject: {fileID: 1579626432}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.31, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 4, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -8935,7 +8973,7 @@ Transform:
   m_GameObject: {fileID: 1602582386}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 3, y: 0, z: 0}
+  m_LocalPosition: {x: -5.7720003, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 0.01, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -8959,10 +8997,17 @@ MonoBehaviour:
   portalID: 
   portalType: 5
   isUnlocked: 1
+  portalDirection: 0
   potionShopUI: {fileID: 0}
   equipmentShopUI: {fileID: 1287251438}
   warehouseUI: {fileID: 0}
+  completeStageOnUse: 0
+  stageIdToComplete: 
+  portalParticles: {fileID: 0}
+  portalLight: {fileID: 0}
   spawnPoint: {fileID: 0}
+  targetSpawnName: 
+  townExitPointName: 
 --- !u!136 &1602582389
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -9284,7 +9329,7 @@ Transform:
   m_GameObject: {fileID: 1661033994}
   serializedVersion: 2
   m_LocalRotation: {x: 0.40821788, y: -0.23456968, z: 0.10938163, w: 0.8754261}
-  m_LocalPosition: {x: 0, y: 3, z: 0}
+  m_LocalPosition: {x: -8.772, y: 3, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -9315,7 +9360,7 @@ Transform:
   m_GameObject: {fileID: 1788450459}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 4.42, y: 0.5, z: 1.18}
+  m_LocalPosition: {x: -5.72, y: 0.5, z: 1.18}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -14234,7 +14279,7 @@ Transform:
   m_GameObject: {fileID: 2016167889}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -9.18, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -14272,7 +14317,7 @@ Transform:
   m_GameObject: {fileID: 2048013261}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 0.36, y: 0, z: 2}
+  m_LocalPosition: {x: -1.49, y: 0, z: 2}
   m_LocalScale: {x: 5, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -14383,7 +14428,7 @@ Transform:
   m_GameObject: {fileID: 2088995138}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 3, y: 0, z: 2.29}
+  m_LocalPosition: {x: -5.73, y: 0, z: 2.29}
   m_LocalScale: {x: 1.2, y: 1.2, z: 1.2}
   m_ConstrainProportionsScale: 1
   m_Children:
@@ -14476,3 +14521,4 @@ SceneRoots:
   - {fileID: 1835288999}
   - {fileID: 1437696713}
   - {fileID: 877906481}
+  - {fileID: 559406112}

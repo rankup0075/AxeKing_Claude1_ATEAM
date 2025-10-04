@@ -1,6 +1,5 @@
 using System.Collections;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviour
 {
@@ -11,31 +10,35 @@ public class PlayerController : MonoBehaviour
 
     [Header("Combat Settings")]
     public int attackDamage = 1;
-    public float attackCooldown = 0.5f;     // 공격 간격
-    public float hitStunDuration = 0.5f;    // 피격 후 경직 시간
-
-    public float attackRange = 2f;      // 공격 범위 반경
-    public LayerMask enemyLayers;       // 적 레이어 마스크 (인스펙터에서 "Enemy" 레이어 지정)
+    public float hitStunDuration = 0.5f;
+    public float attackRange = 2f;
+    public LayerMask enemyLayers;
 
     [Header("Attack Point")]
     public Transform attackPoint;
 
-    // 컴포넌트
+    [Header("Air Attack Settings")]
+    public bool allowAirAttackLoop = true;   // 공중 연속 공격 허용
+    private bool canAirAttack = true;
+    private int airAttackHash = Animator.StringToHash("AirAttack");
+
+    private bool attackQueued = false; // ★ 짧은 입력 큐잉용
+
+    // Components
     private Rigidbody rb;
     private Animator animator;
     private PlayerHealth playerHealth;
     private PlayerInventory inventory;
 
-    // 상태 플래그
+    // State
     private bool isGrounded = true;
     private bool isAttacking = false;
     private bool isStunned = false;
     public bool canMove = true;
 
-    private float lastAttackTime = 0f;
     private float horizontalInput;
 
-    // Animator 해시값
+    // Animator hashes
     private int speedHash = Animator.StringToHash("Speed");
     private int groundedHash = Animator.StringToHash("IsGrounded");
     private int attackHash = Animator.StringToHash("Attack");
@@ -43,31 +46,20 @@ public class PlayerController : MonoBehaviour
     private int dieHash = Animator.StringToHash("Die");
 
     public static PlayerController Instance;
-    [HideInInspector] public bool canControl = true; // 상점 등 외부 UI에서 제어할 때 사용
+    [HideInInspector] public bool canControl = true;
 
-    public bool IsGrounded => isGrounded;   // 읽기 전용 Grounded 상태
-    public bool IsJumping { get; private set; }  // 점프 중 여부
-
+    public bool IsGrounded => isGrounded;
+    public bool IsJumping { get; private set; }
 
     void Awake()
     {
-        Debug.Log($"[PlayerController] Awake 실행됨 - {gameObject.name} / Scene: {gameObject.scene.name}");
-        var root = transform.root.gameObject;
-        if (PlayerController.Instance != null && PlayerController.Instance != this)
+        if (Instance != null && Instance != this)
         {
-            Debug.LogWarning($"[PlayerController] 중복 Player 감지 → {root.name} 삭제");
-            Destroy(root);
+            Destroy(transform.root.gameObject);
             return;
         }
-
-        PlayerController.Instance = this;
-        DontDestroyOnLoad(root);
-        Debug.Log($"[PlayerController] PlayerRoot 유지됨: {root.name}");
-    }
-
-    void OnDestroy()
-    {
-        Debug.LogError($"[PlayerController] Player 파괴됨! Scene: {gameObject.scene.name}");
+        Instance = this;
+        DontDestroyOnLoad(transform.root.gameObject);
     }
 
     void Start()
@@ -78,95 +70,39 @@ public class PlayerController : MonoBehaviour
         inventory = GetComponent<PlayerInventory>();
     }
 
-    void OnEnable()
-    {
-        //SceneManager.sceneLoaded += OnSceneLoaded;
-    }
-
-    void OnDisable()
-    {
-       // SceneManager.sceneLoaded -= OnSceneLoaded;
-    }
-
-    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-    {
-        // 씬 전환 시 항상 정상 상태 보장
-        canControl = true;
-        Time.timeScale = 1f;
-
-        if (animator != null)
-        {
-            animator.enabled = true;
-            animator.speed = 1f;
-            animator.updateMode = AnimatorUpdateMode.Normal;
-        }
-
-        if (rb != null)
-        {
-            rb.isKinematic = false;
-            rb.useGravity = true;
-            rb.constraints = RigidbodyConstraints.FreezeRotation;
-        }
-    }
-
     void Update()
     {
-        // 외부 제어(canControl=false)일 때 → 완전 멈춤
         if (!canControl)
         {
-            if (rb != null)
-            {
-                var v = rb.linearVelocity;
-                v.x = 0f;
-                rb.linearVelocity = v;
-            }
+            StopHorizontalMotion();
             animator.SetFloat(speedHash, 0f);
             return;
         }
 
         if (isStunned || !canMove) return;
 
-        // 입력
         horizontalInput = Input.GetAxisRaw("Horizontal");
         bool jumpPressed = Input.GetKeyDown(KeyCode.C);
         bool attackPressed = Input.GetKeyDown(KeyCode.Z);
+        bool attackHeld = Input.GetKey(KeyCode.Z);
+        bool attackReleased = Input.GetKeyUp(KeyCode.Z);
 
-        // 이동, 점프, 공격
         HandleMovement(horizontalInput);
         if (jumpPressed) HandleJump();
-        if (attackPressed) HandleAttack();
+        if (attackPressed || attackHeld) HandleAttack();
+        if (attackReleased) HandleAirAttackRelease();
 
         HandlePotions();
         HandleInteraction();
 
-        // Animator 상태 업데이트
         animator.SetBool(groundedHash, isGrounded);
-
-        if (isGrounded && !isAttacking)
-        {
-            if (Mathf.Abs(horizontalInput) > 0.1f)
-            {
-                bool isRunning = Input.GetKey(KeyCode.LeftShift);
-                animator.SetFloat(speedHash, isRunning ? 1f : 0.5f);
-            }
-            else animator.SetFloat(speedHash, 0f);
-        }
-        else
-        {
-            animator.SetFloat(speedHash, 0f);
-        }
-
-        if (canMove == false)
-        {
-            animator.SetFloat("Speed", 0f); // 이동 속도 0
-            animator.Play("Idle"); // Idle 애니메이션 재생
-        }
+        UpdateAnimatorMoveBlend();
     }
 
-    // ================= 이동, 점프, 공격 =================
+    // ================= Movement =================
     void HandleMovement(float horizontal)
     {
-        if (isAttacking) return;
+        if (isAttacking) return; // 공격 중 이동 금지
 
         float currentSpeed = Input.GetKey(KeyCode.LeftShift) ? runSpeed : walkSpeed;
         Vector3 vel = rb.linearVelocity;
@@ -184,58 +120,96 @@ public class PlayerController : MonoBehaviour
             rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
             isGrounded = false;
-            IsJumping = true;   // 점프 상태 true
+            IsJumping = true;
         }
     }
 
+    // ================= Attack =================
     void HandleAttack()
     {
-        if (Time.time >= lastAttackTime + attackCooldown && isGrounded && !isAttacking)
-            StartAttack();
+        if (isStunned || !canMove || isAttacking) return;
+
+        if (isGrounded) StartGroundAttack();
+        else if (allowAirAttackLoop || canAirAttack) StartAirAttack();
     }
 
-    void StartAttack()
+    void StartGroundAttack()
     {
-        if (isAttacking) return;
-
         isAttacking = true;
-        lastAttackTime = Time.time;
-
         rb.linearVelocity = new Vector3(0, rb.linearVelocity.y, rb.linearVelocity.z);
 
         animator.ResetTrigger(attackHash);
         animator.SetTrigger(attackHash);
     }
 
+    void StartAirAttack()
+    {
+        isAttacking = true;
+        // 공중은 중력과 속도 유지
+        animator.ResetTrigger(airAttackHash);
+        animator.SetTrigger(airAttackHash);
+
+        if (!allowAirAttackLoop)
+            canAirAttack = false;
+    }
+
+    void HandleAirAttackRelease()
+    {
+        if (!isGrounded && isAttacking)
+        {
+            // 공격 중인데 Z를 떼면 0.2초 뒤 자동 복귀 (보조용)
+            StartCoroutine(WaitThenReturnToJump());
+        }
+    }
+    IEnumerator WaitThenReturnToJump()
+    {
+        yield return new WaitForSeconds(0.2f);
+        if (!isGrounded && isAttacking)
+        {
+            isAttacking = false;
+            animator.ResetTrigger(airAttackHash);
+            animator.SetBool("IsGrounded", false);
+            animator.Play("Jump");
+        }
+    }
+
+
     public void EndAttack() // 애니메이션 이벤트
     {
+        if (!isGrounded)            // 공중이라면 공격 끝나자마자 점프로 전환
+        {
+            isAttacking = false;
+            animator.ResetTrigger(airAttackHash);
+            animator.SetBool("IsGrounded", false);
+            animator.Play("Jump");  // 점프 상태명 확인
+        }
+        else                        // 지상은 기존 로직 유지
+        {
+            StartCoroutine(DelayEndAttack());
+        }
+    }
+
+
+    IEnumerator DelayEndAttack()
+    {
+        yield return new WaitForSeconds(0.1f); // 모션 끝까지 이동 잠금 유지
         isAttacking = false;
-        animator.ResetTrigger(attackHash);
     }
 
     public void ProcessAttackHit()
     {
-        if (attackPoint == null)
-        {
-            Debug.LogWarning("AttackPoint가 지정되지 않았습니다.");
-            return;
-        }
+        if (attackPoint == null) return;
 
-        // 지정한 위치를 중심으로 원형 범위 내 적 탐색
         Collider[] enemies = Physics.OverlapSphere(attackPoint.position, attackRange, enemyLayers);
-
         foreach (Collider enemy in enemies)
         {
-            EnemyHealth enemyHealth = enemy.GetComponent<EnemyHealth>();
-            if (enemyHealth != null)
-            {
-                enemyHealth.TakeDamage(attackDamage);
-                Debug.Log($"[Player] {enemy.name}에게 {attackDamage} 데미지");
-            }
+            EnemyHealth e = enemy.GetComponent<EnemyHealth>();
+            if (e != null)
+                e.TakeDamage(attackDamage);
         }
     }
 
-    // ================= 전투 & 피격 =================
+    // ================= Damage & Death =================
     public void TakeHit(int damage)
     {
         if (isStunned) return;
@@ -263,15 +237,15 @@ public class PlayerController : MonoBehaviour
         GameManager.Instance.GameOver();
     }
 
-    // ================= 충돌 처리 =================
+    // ================= Collision =================
     void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.CompareTag("Ground"))
         {
             isGrounded = true;
-            IsJumping = false;  // 착지하면 점프 상태 해제
+            IsJumping = false;
+            canAirAttack = true;
         }
-           
     }
 
     void OnCollisionExit(Collision collision)
@@ -280,7 +254,7 @@ public class PlayerController : MonoBehaviour
             isGrounded = false;
     }
 
-    // ================= 아이템/상호작용 =================
+    // ================= Interaction =================
     void HandlePotions()
     {
         if (Input.GetKeyDown(KeyCode.Alpha1)) inventory.UsePotion(0);
@@ -296,45 +270,63 @@ public class PlayerController : MonoBehaviour
             foreach (var obj in interactables)
             {
                 if (obj == null || obj.gameObject == gameObject) continue;
-
                 if (obj.CompareTag("Portal"))
                 {
                     var portal = obj.GetComponent<Portal>();
-                    if (portal != null) { portal.Interact(); return; }
+                    portal?.Interact();
+                    return;
                 }
             }
         }
     }
 
+    // ================= StopImmediately =================
     public void StopImmediately()
     {
-        // 이동 중일 때 강제로 멈춤
-        if (TryGetComponent<Rigidbody>(out var rb))
+        // 이동 완전 정지
+        if (rb != null)
         {
             rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
         }
 
         if (TryGetComponent<CharacterController>(out var cc))
-        {
-            cc.Move(Vector3.zero); // 일단 0으로 던져서 멈춤
-        }
+            cc.Move(Vector3.zero);
 
-        // 애니메이션 중일 수 있으니 Idle 상태로 전환
-        if (TryGetComponent<Animator>(out var anim))
+        if (animator != null)
         {
-            anim.SetFloat("MoveSpeed", 0f);
+            animator.SetFloat("Speed", 0f);
+            animator.Play("Idle");
         }
     }
 
-    // ================= 기즈모 =================
+    void StopHorizontalMotion()
+    {
+        if (rb != null)
+        {
+            var v = rb.linearVelocity;
+            v.x = 0;
+            rb.linearVelocity = v;
+        }
+    }
+
+    void UpdateAnimatorMoveBlend()
+    {
+        if (isGrounded && !isAttacking)
+        {
+            if (Mathf.Abs(horizontalInput) > 0.1f)
+            {
+                bool running = Input.GetKey(KeyCode.LeftShift);
+                animator.SetFloat(speedHash, running ? 1f : 0.5f);
+            }
+            else animator.SetFloat(speedHash, 0f);
+        }
+        else animator.SetFloat(speedHash, 0f);
+    }
+
+    // ================= Gizmos =================
     void OnDrawGizmosSelected()
     {
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position + transform.forward, 2f);
-
-        Gizmos.color = Color.blue;
-        Gizmos.DrawWireSphere(transform.position, 1.5f);
-
         if (attackPoint == null) return;
         Gizmos.color = Color.green;
         Gizmos.DrawWireSphere(attackPoint.position, attackRange);

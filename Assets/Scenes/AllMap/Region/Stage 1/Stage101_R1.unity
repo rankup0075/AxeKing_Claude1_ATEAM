@@ -5076,12 +5076,16 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 879583673320216022, guid: ecf3904b73d18814282dfd84425b61e4, type: 3}
       propertyPath: portalID
-      value: Stage101_R2_Entry
+      value: Stage101_R1_R2
       objectReference: {fileID: 0}
     - target: {fileID: 879583673320216022, guid: ecf3904b73d18814282dfd84425b61e4, type: 3}
       propertyPath: isUnlocked
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 879583673320216022, guid: ecf3904b73d18814282dfd84425b61e4, type: 3}
+      propertyPath: spawnPoint
+      value: 
+      objectReference: {fileID: 2095985577}
     - target: {fileID: 879583673320216022, guid: ecf3904b73d18814282dfd84425b61e4, type: 3}
       propertyPath: portalLight
       value: 
@@ -5094,9 +5098,13 @@ PrefabInstance:
       propertyPath: portalParticles
       value: 
       objectReference: {fileID: 220877352}
+    - target: {fileID: 879583673320216022, guid: ecf3904b73d18814282dfd84425b61e4, type: 3}
+      propertyPath: targetSpawnName
+      value: PlayerSpawnPoint
+      objectReference: {fileID: 0}
     - target: {fileID: 2091664483276039924, guid: ecf3904b73d18814282dfd84425b61e4, type: 3}
       propertyPath: m_Name
-      value: ToRound2Portal
+      value: Stage101_R2EntryPortal
       objectReference: {fileID: 0}
     - target: {fileID: 8724536069571000621, guid: ecf3904b73d18814282dfd84425b61e4, type: 3}
       propertyPath: m_LocalPosition.x
@@ -5501,7 +5509,7 @@ Transform:
   m_GameObject: {fileID: 743898463}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: -0.7071068, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: -3.46, y: 0, z: 0}
+  m_LocalPosition: {x: 19.97, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -6076,6 +6084,7 @@ MonoBehaviour:
   portalID: StageToStageSelect
   portalType: 1
   isUnlocked: 1
+  portalDirection: 0
   potionShopUI: {fileID: 0}
   equipmentShopUI: {fileID: 0}
   warehouseUI: {fileID: 0}
@@ -6084,6 +6093,8 @@ MonoBehaviour:
   portalParticles: {fileID: 0}
   portalLight: {fileID: 0}
   spawnPoint: {fileID: 0}
+  targetSpawnName: RetunrPoint
+  townExitPointName: 
 --- !u!136 &1148194414
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -6682,20 +6693,52 @@ MonoBehaviour:
   smoothSpeed: 0.125
   offset: {x: 0, y: 5, z: -8.5}
   useBounds: 1
-  minX: -20
-  maxX: 20
+  minX: -19
+  maxX: 19
   minY: 0
   maxY: 3
+--- !u!1 &2095985576
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2095985577}
+  m_Layer: 0
+  m_Name: Stage101_R1EntryPortal
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2095985577
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2095985576}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 22, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
+  - {fileID: 1408183606}
   - {fileID: 1882058583}
   - {fileID: 1467765933}
   - {fileID: 439504933}
   - {fileID: 1148194417}
   - {fileID: 1656661113}
-  - {fileID: 220877349}
   - {fileID: 743898466}
   - {fileID: 747323081}
-  - {fileID: 1408183606}
+  - {fileID: 2095985577}
+  - {fileID: 220877349}

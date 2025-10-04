@@ -28,12 +28,15 @@ public class CameraFollow : MonoBehaviour
 
     void Start()
     {
-        AssignPlayerAsTarget();
+        //AssignPlayerAsTarget();
         defaultOffset = offset;
     }
 
     void LateUpdate()
     {
+        if (target == null && PlayerController.Instance != null)
+            target = PlayerController.Instance.transform;
+
         if (target == null) return;
 
         Vector3 desiredPosition = target.position + offset;

@@ -103,11 +103,7 @@ public class UIManager : MonoBehaviour
                 CloseWareHouseUI();
                 return;
             }
-            //if (stageSelectPanel != null && stageSelectPanel.activeSelf)
-            //{
-            //    CloseStageSelectPanel();
-            //    return;
-            //}
+
             if (stageSelectPanel != null && stageSelectPanel.activeSelf)
                 return;
 
@@ -311,11 +307,11 @@ public class UIManager : MonoBehaviour
             if (playerHUD != null)
                 playerHUD.SetActive(false); // HUD 끄기
 
-            Debug.Log("[UIManager] QuestBoard 열림");
+            //Debug.Log("[UIManager] QuestBoard 열림");
         }
         else
         {
-            Debug.LogError("[UIManager] QuestBoardPanel이 null임");
+            //Debug.LogError("[UIManager] QuestBoardPanel이 null임");
         }
     }
 
@@ -350,15 +346,15 @@ public class UIManager : MonoBehaviour
 
                 if (stageSelectPanel == null)
                 {
-                    Debug.LogError("[UIManager] StageSelectPanel을 프리팹에서 찾지 못했음");
+                    //Debug.LogError("[UIManager] StageSelectPanel을 프리팹에서 찾지 못했음");
                     return;
                 }
 
-                Debug.Log("[UIManager] StageSelectPanel 프리팹에서 로드됨");
+                //Debug.Log("[UIManager] StageSelectPanel 프리팹에서 로드됨");
             }
             else
             {
-                Debug.LogError("[UIManager] StageSelectUICanvas 프리팹을 Resources/UI 경로에서 찾을 수 없음");
+                //Debug.LogError("[UIManager] StageSelectUICanvas 프리팹을 Resources/UI 경로에서 찾을 수 없음");
                 return;
             }
         }
@@ -368,11 +364,11 @@ public class UIManager : MonoBehaviour
         if (StageSelectUI.Instance != null)
         {
             StageSelectUI.Instance.Open();
-            RefreshStageSelectUI();
+            //RefreshStageSelectUI();
         }
         else
         {
-            Debug.LogError("[UIManager] StageSelectUI.Instance가 null임");
+            //Debug.LogError("[UIManager] StageSelectUI.Instance가 null임");
         }
 
         // 플레이어 조작 잠금
@@ -414,12 +410,12 @@ public class UIManager : MonoBehaviour
     }
 
 
-    void RefreshStageSelectUI()
-    {
-        // 여기서 StageManager.Instance.regions 데이터를 읽어서
-        // 버튼 동적 생성하면 됨
-        Debug.Log("[UIManager] Stage Select UI 갱신");
-    }
+    //void RefreshStageSelectUI()
+    //{
+    //    // 여기서 StageManager.Instance.regions 데이터를 읽어서
+    //    // 버튼 동적 생성하면 됨
+    //    //Debug.Log("[UIManager] Stage Select UI 갱신");
+    //}
 
     // ======================
     // Health / Gold / Potion UI
@@ -586,10 +582,10 @@ public class UIManager : MonoBehaviour
                 }
             }
 
-            if (stageSelectPanel != null)
-                Debug.Log("[UIManager] StageSelectPanel 자동 연결 성공");
-            else
-                Debug.LogError("[UIManager] StageSelectPanel 여전히 못 찾음");
+            //if (stageSelectPanel != null)
+            //    Debug.Log("[UIManager] StageSelectPanel 자동 연결 성공");
+            //else
+            //    Debug.LogError("[UIManager] StageSelectPanel 여전히 못 찾음");
         }
         if (gameOverPanel == null) gameOverPanel = GameObject.Find("GameOverPanel");
         if (stageCompletePanel == null) stageCompletePanel = GameObject.Find("StageCompletePanel");
@@ -634,14 +630,14 @@ public class UIManager : MonoBehaviour
             if (obj != null)
             {
                 settingsPanel_InGame = obj;
-                Debug.Log("[UIManager] SettingsPanel_InGame 자동 연결됨");
+                //Debug.Log("[UIManager] SettingsPanel_InGame 자동 연결됨");
             }
         }
 
 
         if (settingsPanel_InGame == null)
         {
-            Debug.LogWarning("[UIManager] SettingsPanel_InGame 없음");
+            //Debug.LogWarning("[UIManager] SettingsPanel_InGame 없음");
             return;
         }
 
@@ -651,7 +647,7 @@ public class UIManager : MonoBehaviour
 
         if (targetCanvas == null)
         {
-            Debug.LogWarning("[UIManager] 활성 Canvas 없음 → SettingsPanel 이동 생략");
+            //Debug.LogWarning("[UIManager] 활성 Canvas 없음 → SettingsPanel 이동 생략");
         }
         else
         {
@@ -664,7 +660,7 @@ public class UIManager : MonoBehaviour
             rt.offsetMax = Vector2.zero;
             rt.localScale = Vector3.one;
 
-            Debug.Log($"[UIManager] SettingsPanel_InGame → '{targetCanvas.name}' 로 이동 완료");
+            //Debug.Log($"[UIManager] SettingsPanel_InGame → '{targetCanvas.name}' 로 이동 완료");
         }
 
         // CanvasGroup 초기화
@@ -685,7 +681,7 @@ public class UIManager : MonoBehaviour
         GameObject prefab = Resources.Load<GameObject>("UI/SettingsPanel_InGame");
         if (prefab == null)
         {
-            Debug.LogWarning("[UIManager] Resources/UI/SettingsPanel_InGame.prefab 없음");
+            //Debug.LogWarning("[UIManager] Resources/UI/SettingsPanel_InGame.prefab 없음");
             return;
         }
 
@@ -703,11 +699,11 @@ public class UIManager : MonoBehaviour
         if (targetCanvas != null)
         {
             settingsPanel_InGame.transform.SetParent(targetCanvas.transform, false);
-            Debug.Log($"[UIManager] SettingsPanel_InGame '{targetCanvas.name}' 밑으로 이동");
+            //Debug.Log($"[UIManager] SettingsPanel_InGame '{targetCanvas.name}' 밑으로 이동");
         }
         else
         {
-            Debug.LogWarning("[UIManager] 활성 Canvas 없음 → SettingsPanel_InGame 고아 상태");
+            //Debug.LogWarning("[UIManager] 활성 Canvas 없음 → SettingsPanel_InGame 고아 상태");
         }
 
         closeButton = settingsPanel_InGame.transform
@@ -738,7 +734,7 @@ public class UIManager : MonoBehaviour
             quitButton.onClick.AddListener(QuitGame);
         }
 
-        Debug.Log("[UIManager] SettingsPanel 버튼 연결 완료");
+        //Debug.Log("[UIManager] SettingsPanel 버튼 연결 완료");
 
 
         // CanvasGroup 기본값 초기화
@@ -760,26 +756,6 @@ public class UIManager : MonoBehaviour
             playerHUD = null;
             return;
         }
-
-        // === GameManager에서 HUD를 관리하므로 여기서 프리팹 인스턴스화는 주석 처리 ===
-        /*
-        if (playerHUD == null)
-        {
-            var prefab = Resources.Load<GameObject>("UI/PlayerHUDCanvas");
-            if (prefab != null)
-            {
-                var instance = Instantiate(prefab);
-                playerHUD = instance.transform.Find("PlayerHUD")?.gameObject;
-                DontDestroyOnLoad(instance);
-                Debug.Log("[UIManager] PlayerHUD 프리팹 인스턴스화 완료");
-            }
-            else
-            {
-                Debug.LogError("[UIManager] Resources/UI/PlayerHUDCanvas 프리팹을 찾을 수 없음");
-                return;
-            }
-        }
-        */
 
         if (playerHUD == null)
             playerHUD = GameObject.Find("PlayerHUDCanvas/PlayerHUD");

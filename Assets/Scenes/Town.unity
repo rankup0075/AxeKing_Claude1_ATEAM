@@ -591,9 +591,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Portal
   targetScene: WareHouse
-  portalID: TownToWarehouse
+  portalID: WareHouse
   portalType: 0
   isUnlocked: 1
+  portalDirection: 0
   potionShopUI: {fileID: 0}
   equipmentShopUI: {fileID: 0}
   warehouseUI: {fileID: 0}
@@ -602,6 +603,8 @@ MonoBehaviour:
   portalParticles: {fileID: 0}
   portalLight: {fileID: 0}
   spawnPoint: {fileID: 0}
+  targetSpawnName: PlayerSpawnPoint
+  townExitPointName: 
 --- !u!1 &217426862
 GameObject:
   m_ObjectHideFlags: 0
@@ -5438,6 +5441,37 @@ ParticleSystem:
         m_PostInfinity: 2
         m_RotationOrder: 4
     vectorLabel1_3: W
+--- !u!1 &218480389
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 218480390}
+  m_Layer: 0
+  m_Name: AlchemistShopExitPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &218480390
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 218480389}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -5.25, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &318055167
 GameObject:
   m_ObjectHideFlags: 0
@@ -6047,6 +6081,37 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 493182265}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &580168435
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 580168436}
+  m_Layer: 0
+  m_Name: WarehouseExitPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &580168436
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 580168435}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 5.5, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &585981298
 GameObject:
   m_ObjectHideFlags: 0
@@ -16466,10 +16531,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fd3f088f49b8021489944ac2a5e7964c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Portal
-  targetScene: Quest
-  portalID: TownToQuestBoard
+  targetScene: 
+  portalID: 
   portalType: 3
   isUnlocked: 1
+  portalDirection: 0
   potionShopUI: {fileID: 0}
   equipmentShopUI: {fileID: 0}
   warehouseUI: {fileID: 0}
@@ -16478,6 +16544,8 @@ MonoBehaviour:
   portalParticles: {fileID: 0}
   portalLight: {fileID: 0}
   spawnPoint: {fileID: 0}
+  targetSpawnName: 
+  townExitPointName: 
 --- !u!1 &989549434
 GameObject:
   m_ObjectHideFlags: 0
@@ -17103,7 +17171,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1221150034}
   m_Layer: 0
-  m_Name: TownSpawnPoint
+  m_Name: TownStartSpawnPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -22335,9 +22403,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Portal
   targetScene: EquipmentShop
-  portalID: TownToEquipmentShop
+  portalID: EquipmentShop
   portalType: 0
   isUnlocked: 1
+  portalDirection: 0
   potionShopUI: {fileID: 0}
   equipmentShopUI: {fileID: 0}
   warehouseUI: {fileID: 0}
@@ -22346,6 +22415,8 @@ MonoBehaviour:
   portalParticles: {fileID: 0}
   portalLight: {fileID: 0}
   spawnPoint: {fileID: 0}
+  targetSpawnName: 
+  townExitPointName: 
 --- !u!136 &1548608903
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -22624,6 +22695,37 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: -20, y: -20}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &1664879832
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1664879833}
+  m_Layer: 0
+  m_Name: EquipmentShopExitPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1664879833
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1664879832}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -17.5, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1667350710
 GameObject:
   m_ObjectHideFlags: 0
@@ -22756,6 +22858,7 @@ MonoBehaviour:
   portalID: 
   portalType: 1
   isUnlocked: 1
+  portalDirection: 0
   potionShopUI: {fileID: 0}
   equipmentShopUI: {fileID: 0}
   warehouseUI: {fileID: 0}
@@ -22764,6 +22867,8 @@ MonoBehaviour:
   portalParticles: {fileID: 0}
   portalLight: {fileID: 0}
   spawnPoint: {fileID: 0}
+  targetSpawnName: 
+  townExitPointName: 
 --- !u!1 &1789636461
 GameObject:
   m_ObjectHideFlags: 0
@@ -22891,6 +22996,37 @@ Light:
   m_LightUnit: 1
   m_LuxAtDistance: 1
   m_EnableSpotReflector: 1
+--- !u!1 &1796716438
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1796716439}
+  m_Layer: 0
+  m_Name: ReturnPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1796716439
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1796716438}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 22.7, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1851455295
 GameObject:
   m_ObjectHideFlags: 0
@@ -28701,9 +28837,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Portal
   targetScene: AlchemistShop
-  portalID: TownToEquipmentShop
+  portalID: AlchemistShop
   portalType: 0
   isUnlocked: 1
+  portalDirection: 0
   potionShopUI: {fileID: 0}
   equipmentShopUI: {fileID: 0}
   warehouseUI: {fileID: 0}
@@ -28712,6 +28849,8 @@ MonoBehaviour:
   portalParticles: {fileID: 0}
   portalLight: {fileID: 0}
   spawnPoint: {fileID: 0}
+  targetSpawnName: Town Entry Portal
+  townExitPointName: 
 --- !u!1 &2115760327
 GameObject:
   m_ObjectHideFlags: 0
@@ -28853,3 +28992,7 @@ SceneRoots:
   - {fileID: 1307034783}
   - {fileID: 1969692983}
   - {fileID: 1221150034}
+  - {fileID: 1664879833}
+  - {fileID: 218480390}
+  - {fileID: 580168436}
+  - {fileID: 1796716439}
