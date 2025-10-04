@@ -1154,6 +1154,7 @@ GameObject:
   m_Component:
   - component: {fileID: 341049397}
   - component: {fileID: 341049398}
+  - component: {fileID: 341049399}
   m_Layer: 5
   m_Name: Slider
   m_TagString: Untagged
@@ -1233,7 +1234,33 @@ MonoBehaviour:
   m_Value: 1
   m_OnValueChanged:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1674708886}
+        m_TargetAssemblyTypeName: MusicManager, Assembly-CSharp
+        m_MethodName: SetBGMVolume
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!114 &341049399
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 341049396}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 877d23327e750074c94ae5cdfed39174, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VolumeBinder
+  kind: 1
+  valueText: {fileID: 37033525}
 --- !u!1 &377692560
 GameObject:
   m_ObjectHideFlags: 0
@@ -2369,264 +2396,6 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
---- !u!1 &713087075
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 713087077}
-  - component: {fileID: 713087076}
-  - component: {fileID: 713087079}
-  - component: {fileID: 713087078}
-  m_Layer: 0
-  m_Name: MusciManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &713087076
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 713087075}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e6436ceb15569674cb669590f0947c37, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MusicManager
-  masterMixer: {fileID: 24100000, guid: 4e234157be6a7234294f15b637219236, type: 2}
-  musicSource1: {fileID: 713087079}
-  musicSource2: {fileID: 713087078}
-  mainMenuMusic: {fileID: 8300000, guid: a7d4689f28ebe97409cd3a590f5d30e0, type: 3}
-  townMusic: {fileID: 8300000, guid: 9b91a3ab23490d54ba5ed2d163c45580, type: 3}
-  equipmentShopMusic: {fileID: 0}
-  alchemistShopMusic: {fileID: 0}
-  hideoutMusic: {fileID: 0}
-  stageSelectMusic: {fileID: 0}
-  territory1Music: {fileID: 0}
-  territory2Music: {fileID: 0}
-  territory3Music: {fileID: 0}
-  territory4Music: {fileID: 0}
-  territory5Music: {fileID: 0}
-  bossBattleMusic: {fileID: 0}
-  finalBossMusic: {fileID: 0}
-  crossfadeDuration: 2
-  defaultVolume: 0.7
---- !u!4 &713087077
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 713087075}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -3.13943, y: 5.94338, z: 0.25}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!82 &713087078
-AudioSource:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 713087075}
-  m_Enabled: 1
-  serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 1648483451530882217, guid: 4e234157be6a7234294f15b637219236, type: 2}
-  m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 0}
-  m_PlayOnAwake: 1
-  m_Volume: 1
-  m_Pitch: 1
-  Loop: 0
-  Mute: 0
-  Spatialize: 0
-  SpatializePostEffects: 0
-  Priority: 128
-  DopplerLevel: 1
-  MinDistance: 1
-  MaxDistance: 500
-  Pan2D: 0
-  rolloffMode: 0
-  BypassEffects: 0
-  BypassListenerEffects: 0
-  BypassReverbZones: 0
-  rolloffCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 1
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  panLevelCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  spreadCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  reverbZoneMixCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
---- !u!82 &713087079
-AudioSource:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 713087075}
-  m_Enabled: 1
-  serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 3867284185297089054, guid: 4e234157be6a7234294f15b637219236, type: 2}
-  m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 0}
-  m_PlayOnAwake: 1
-  m_Volume: 1
-  m_Pitch: 1
-  Loop: 0
-  Mute: 0
-  Spatialize: 0
-  SpatializePostEffects: 0
-  Priority: 128
-  DopplerLevel: 1
-  MinDistance: 1
-  MaxDistance: 500
-  Pan2D: 0
-  rolloffMode: 0
-  BypassEffects: 0
-  BypassListenerEffects: 0
-  BypassReverbZones: 0
-  rolloffCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 1
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  panLevelCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  spreadCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  reverbZoneMixCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
 --- !u!1 &720466831
 GameObject:
   m_ObjectHideFlags: 0
@@ -3573,23 +3342,6 @@ MonoBehaviour:
   currentStage: 1
   currentRound: 1
   isPaused: 0
-  lastPortalID: 
-  spawnPlaceDelay: 0.05
-  spawnPoints:
-  - portalID: TownToEquipmentShop
-    position: {x: -8.5, y: 0, z: 0}
-  - portalID: TownToAlchemistShop
-    position: {x: -8.5, y: 0, z: 0}
-  - portalID: TownToWarehouse
-    position: {x: -8.5, y: 0, z: 0}
-  - portalID: EquipmentShopToTown
-    position: {x: -17.5, y: 0, z: 0}
-  - portalID: AlchemistShopToTown
-    position: {x: -5.25, y: 0, z: 0}
-  - portalID: WarehouseToTown
-    position: {x: 5.5, y: 0, z: 0}
-  - portalID: StageToTown
-    position: {x: 22.65, y: 0, z: 0}
   playerHUDPrefab: {fileID: 8735306787515297675, guid: dfa4d543094b4ea4c8ccfd501121a1f2, type: 3}
   petPrefab: {fileID: 4439164865027620757, guid: fca3283a5a5f98a46a4475fc6d538f79, type: 3}
   playerPrefab: {fileID: 1567307836069903119, guid: 607d0dfdf16c2f64abf88e635ee437d3, type: 3}
@@ -5993,6 +5745,17 @@ RectTransform:
   m_AnchoredPosition: {x: -5, y: 0}
   m_SizeDelta: {x: -20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1674708886 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7301070649228654934, guid: a468fefa848c80540a4a13ed4cb090d2, type: 3}
+  m_PrefabInstance: {fileID: 1644608219691317941}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e6436ceb15569674cb669590f0947c37, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MusicManager
 --- !u!1 &1683502740
 GameObject:
   m_ObjectHideFlags: 0
@@ -6387,6 +6150,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1828906821}
   - component: {fileID: 1828906822}
+  - component: {fileID: 1828906823}
   m_Layer: 5
   m_Name: Slider
   m_TagString: Untagged
@@ -6466,7 +6230,33 @@ MonoBehaviour:
   m_Value: 1
   m_OnValueChanged:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1674708886}
+        m_TargetAssemblyTypeName: MusicManager, Assembly-CSharp
+        m_MethodName: SetMasterVolume
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!114 &1828906823
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1828906820}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 877d23327e750074c94ae5cdfed39174, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VolumeBinder
+  kind: 0
+  valueText: {fileID: 1530022865}
 --- !u!1 &1837510163
 GameObject:
   m_ObjectHideFlags: 0
@@ -6688,6 +6478,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1933174383}
   - component: {fileID: 1933174384}
+  - component: {fileID: 1933174385}
   m_Layer: 5
   m_Name: Slider
   m_TagString: Untagged
@@ -6767,7 +6558,33 @@ MonoBehaviour:
   m_Value: 1
   m_OnValueChanged:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1674708886}
+        m_TargetAssemblyTypeName: MusicManager, Assembly-CSharp
+        m_MethodName: SetSFXVolume
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!114 &1933174385
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1933174382}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 877d23327e750074c94ae5cdfed39174, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VolumeBinder
+  kind: 2
+  valueText: {fileID: 527216688}
 --- !u!1 &1934438000
 GameObject:
   m_ObjectHideFlags: 0
@@ -6825,7 +6642,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uC815\uB9D0\uB85C \uB098\uAC00\uC2DC\uACA0\uC501\uB2C8\uAE4C?"
+  m_text: "\uC815\uB9D0\uB85C \uB098\uAC00\uC2DC\uACA0\uC2B5\uB2C8\uAE4C?"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 1b356b5daebda32499487417d7f51bac, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -7201,6 +7018,111 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2136821512}
   m_CullTransparentMesh: 1
+--- !u!1001 &1644608219691317941
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1013212879106331160, guid: a468fefa848c80540a4a13ed4cb090d2, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -3.13943
+      objectReference: {fileID: 0}
+    - target: {fileID: 1013212879106331160, guid: a468fefa848c80540a4a13ed4cb090d2, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 5.94338
+      objectReference: {fileID: 0}
+    - target: {fileID: 1013212879106331160, guid: a468fefa848c80540a4a13ed4cb090d2, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 1013212879106331160, guid: a468fefa848c80540a4a13ed4cb090d2, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1013212879106331160, guid: a468fefa848c80540a4a13ed4cb090d2, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1013212879106331160, guid: a468fefa848c80540a4a13ed4cb090d2, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1013212879106331160, guid: a468fefa848c80540a4a13ed4cb090d2, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1013212879106331160, guid: a468fefa848c80540a4a13ed4cb090d2, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1013212879106331160, guid: a468fefa848c80540a4a13ed4cb090d2, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1013212879106331160, guid: a468fefa848c80540a4a13ed4cb090d2, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1978855688089015651, guid: a468fefa848c80540a4a13ed4cb090d2, type: 3}
+      propertyPath: m_Name
+      value: MusicManager
+      objectReference: {fileID: 0}
+    - target: {fileID: 7301070649228654934, guid: a468fefa848c80540a4a13ed4cb090d2, type: 3}
+      propertyPath: bgmGroup
+      value: 
+      objectReference: {fileID: 6179185063957522782, guid: 4e234157be6a7234294f15b637219236, type: 2}
+    - target: {fileID: 7301070649228654934, guid: a468fefa848c80540a4a13ed4cb090d2, type: 3}
+      propertyPath: townMusic
+      value: 
+      objectReference: {fileID: 8300000, guid: 9b91a3ab23490d54ba5ed2d163c45580, type: 3}
+    - target: {fileID: 7301070649228654934, guid: a468fefa848c80540a4a13ed4cb090d2, type: 3}
+      propertyPath: masterMixer
+      value: 
+      objectReference: {fileID: 24100000, guid: 4e234157be6a7234294f15b637219236, type: 2}
+    - target: {fileID: 7301070649228654934, guid: a468fefa848c80540a4a13ed4cb090d2, type: 3}
+      propertyPath: mainMenuMusic
+      value: 
+      objectReference: {fileID: 8300000, guid: 2dde10e8ea02f634ab670ea930ac3772, type: 3}
+    - target: {fileID: 7301070649228654934, guid: a468fefa848c80540a4a13ed4cb090d2, type: 3}
+      propertyPath: bossPhase1Music
+      value: 
+      objectReference: {fileID: 8300000, guid: c7b4dc175b42e3d4cbe1bc3fc6ffb30f, type: 3}
+    - target: {fileID: 7301070649228654934, guid: a468fefa848c80540a4a13ed4cb090d2, type: 3}
+      propertyPath: bossPhase2Music
+      value: 
+      objectReference: {fileID: 8300000, guid: a82876d344b21844aac2a8faf719aed2, type: 3}
+    - target: {fileID: 7301070649228654934, guid: a468fefa848c80540a4a13ed4cb090d2, type: 3}
+      propertyPath: bossPhase3Music
+      value: 
+      objectReference: {fileID: 8300000, guid: 18ce44d198b49a740913a90f8c2c8778, type: 3}
+    - target: {fileID: 7301070649228654934, guid: a468fefa848c80540a4a13ed4cb090d2, type: 3}
+      propertyPath: territory1Music
+      value: 
+      objectReference: {fileID: 8300000, guid: dcf6f6429c017814088a4ba129dde688, type: 3}
+    - target: {fileID: 7301070649228654934, guid: a468fefa848c80540a4a13ed4cb090d2, type: 3}
+      propertyPath: territory2Music
+      value: 
+      objectReference: {fileID: 8300000, guid: 56c1729ed3a221344ad1d4c30cf2e528, type: 3}
+    - target: {fileID: 7301070649228654934, guid: a468fefa848c80540a4a13ed4cb090d2, type: 3}
+      propertyPath: territory3Music
+      value: 
+      objectReference: {fileID: 8300000, guid: 76f9c16fa0194654dbafab032c2bd89b, type: 3}
+    - target: {fileID: 7301070649228654934, guid: a468fefa848c80540a4a13ed4cb090d2, type: 3}
+      propertyPath: territory4Music
+      value: 
+      objectReference: {fileID: 8300000, guid: 3bd9f3fccc616d24386c7cc292871b23, type: 3}
+    - target: {fileID: 7301070649228654934, guid: a468fefa848c80540a4a13ed4cb090d2, type: 3}
+      propertyPath: territory5Music
+      value: 
+      objectReference: {fileID: 8300000, guid: c5ad4699bd389334f8e49fa5b76803fb, type: 3}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: a468fefa848c80540a4a13ed4cb090d2, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -7210,7 +7132,7 @@ SceneRoots:
   - {fileID: 832575519}
   - {fileID: 236274144}
   - {fileID: 1511422898}
-  - {fileID: 713087077}
+  - {fileID: 1644608219691317941}
   - {fileID: 959422109}
   - {fileID: 578044458}
   - {fileID: 1070614404}

@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5923648196212136840}
   - component: {fileID: 6363438881154969491}
+  - component: {fileID: 787385212232087473}
   m_Layer: 5
   m_Name: Slider
   m_TagString: Untagged
@@ -89,7 +90,33 @@ MonoBehaviour:
   m_Value: 1
   m_OnValueChanged:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 7301070649228654934, guid: a468fefa848c80540a4a13ed4cb090d2, type: 3}
+        m_TargetAssemblyTypeName: MusicManager, Assembly-CSharp
+        m_MethodName: SetMasterVolume
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!114 &787385212232087473
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 59305886953257369}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 877d23327e750074c94ae5cdfed39174, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VolumeBinder
+  kind: 0
+  valueText: {fileID: 2191211274454969234}
 --- !u!1 &111420366470029087
 GameObject:
   m_ObjectHideFlags: 0
@@ -817,6 +844,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4786737626431283775}
   - component: {fileID: 6401512734986349197}
+  - component: {fileID: 5536559025460329083}
   m_Layer: 5
   m_Name: Slider
   m_TagString: Untagged
@@ -896,7 +924,33 @@ MonoBehaviour:
   m_Value: 1
   m_OnValueChanged:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 7301070649228654934, guid: a468fefa848c80540a4a13ed4cb090d2, type: 3}
+        m_TargetAssemblyTypeName: MusicManager, Assembly-CSharp
+        m_MethodName: SetSFXVolume
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!114 &5536559025460329083
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1466930366521055373}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 877d23327e750074c94ae5cdfed39174, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VolumeBinder
+  kind: 2
+  valueText: {fileID: 6396341745560437287}
 --- !u!1 &1753780884186550859
 GameObject:
   m_ObjectHideFlags: 0
@@ -1229,6 +1283,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7130916323967562827}
   - component: {fileID: 5338851800755508558}
+  - component: {fileID: 7401452162701276892}
   m_Layer: 5
   m_Name: Slider
   m_TagString: Untagged
@@ -1308,7 +1363,33 @@ MonoBehaviour:
   m_Value: 1
   m_OnValueChanged:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 7301070649228654934, guid: a468fefa848c80540a4a13ed4cb090d2, type: 3}
+        m_TargetAssemblyTypeName: MusicManager, Assembly-CSharp
+        m_MethodName: SetBGMVolume
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!114 &7401452162701276892
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2350028291748227073}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 877d23327e750074c94ae5cdfed39174, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VolumeBinder
+  kind: 1
+  valueText: {fileID: 9029861364888615922}
 --- !u!1 &2398778482427149356
 GameObject:
   m_ObjectHideFlags: 0

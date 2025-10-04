@@ -1,200 +1,227 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Audio;
+using System.Collections;
 
 public class MusicManager : MonoBehaviour
 {
     public static MusicManager Instance;
 
-    [Header("Audio Mixer")]
-    public AudioMixer masterMixer; // MasterMixer 연결
+    [Header("Audio Mixer (Expose: Master Volume, BGM Volume, SFX Volume)")]
+    public AudioMixer masterMixer;
+    public AudioMixerGroup bgmGroup;
 
-    [Header("Audio Sources")]
-    public AudioSource musicSource1;
-    public AudioSource musicSource2;
+    [Header("Crossfade")]
+    public float crossfadeDuration = 2f;
+    public float defaultVolume = 0.8f;
 
-    [Header("Menu Music")]
+    [Header("Clips")]
     public AudioClip mainMenuMusic;
-
-    [Header("Town Area Music")]
     public AudioClip townMusic;
-    public AudioClip equipmentShopMusic;
-    public AudioClip alchemistShopMusic;
-    public AudioClip hideoutMusic;
-
-    [Header("Stage Select Music")]
-    public AudioClip stageSelectMusic;
-
-    [Header("Territory Music")]
     public AudioClip territory1Music;
     public AudioClip territory2Music;
     public AudioClip territory3Music;
     public AudioClip territory4Music;
     public AudioClip territory5Music;
+    public AudioClip territory6Music;
 
-    [Header("Boss Music")]
-    public AudioClip bossBattleMusic;
-    public AudioClip finalBossMusic;
+    [Header("Boss Phases")]
+    public AudioClip bossPhase1Music;
+    public AudioClip bossPhase2Music;
+    public AudioClip bossPhase3Music;
 
-    [Header("Settings")]
-    public float crossfadeDuration = 2f;
-    public float defaultVolume = 0.7f;
-
-    private AudioSource currentAudioSource;
-    private AudioSource nextAudioSource;
+    private AudioSource a;
+    private AudioSource b;
+    private AudioSource current;
+    private AudioSource nextAS;
     private AudioClip currentClip;
-    private bool isCrossfading = false;
+    private bool xfade;
 
     void Awake()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
-
-            InitializeAudioSources();
-            SceneManager.sceneLoaded += OnSceneLoaded;
-        }
-        else
+        if (Instance != null)
         {
             Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
+
+        a = gameObject.AddComponent<AudioSource>();
+        b = gameObject.AddComponent<AudioSource>();
+        SetupAudioSource(a);
+        SetupAudioSource(b);
+        current = a;
+        nextAS = b;
+
+        // 항상 100%로 초기화
+        SetMasterVolume(1f);
+        SetBGMVolume(1f);
+        SetSFXVolume(1f);
+
+        PlayerPrefs.SetFloat("vol_master", 1f);
+        PlayerPrefs.SetFloat("vol_bgm", 1f);
+        PlayerPrefs.SetFloat("vol_sfx", 1f);
+
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    void OnDestroy() => SceneManager.sceneLoaded -= OnSceneLoaded;
+
+    void SetupAudioSource(AudioSource s)
+    {
+        s.loop = true;
+        s.volume = defaultVolume;
+        s.playOnAwake = false;
+        s.spatialBlend = 0f;
+        if (bgmGroup != null)
+            s.outputAudioMixerGroup = bgmGroup;
+    }
+
+    void OnSceneLoaded(Scene scene, LoadSceneMode mode) => ApplySceneRule(scene.name);
+
+    // ================================================================
+    // Scene 음악 관리
+    // ================================================================
+    void ApplySceneRule(string sceneNameRaw)
+    {
+        string name = sceneNameRaw.ToLower();
+
+        if (name == "mainmenu") { PlayIfChanged(mainMenuMusic); return; }
+
+        if (name == "town" || name == "equipmentshop" || name == "alchemistshop" || name == "warehouse")
+        {
+            PlayIfChanged(townMusic);
+            return;
+        }
+
+        if (name.Contains("stageselect")) return;
+        if (name.Contains("beforeboss")) { StopMusic(); return; }
+        if (name.Contains("boss")) { StopMusic(); return; }
+
+        int territory = TryParseTerritory(name);
+        if (territory > 0)
+        {
+            var clip = GetTerritoryClip(territory);
+            if (clip != null) PlayIfChanged(clip);
         }
     }
 
-    void InitializeAudioSources()
+    int TryParseTerritory(string name)
     {
-        if (musicSource1 == null) musicSource1 = gameObject.AddComponent<AudioSource>();
-        if (musicSource2 == null) musicSource2 = gameObject.AddComponent<AudioSource>();
+        if (name.StartsWith("stage1")) return 1;
+        if (name.StartsWith("stage2")) return 2;
+        if (name.StartsWith("stage3")) return 3;
+        if (name.StartsWith("stage4")) return 4;
+        if (name.StartsWith("stage5")) return 5;
+        if (name.StartsWith("stage6")) return 6;
 
-        SetupAudioSource(musicSource1);
-        SetupAudioSource(musicSource2);
-
-        currentAudioSource = musicSource1;
-        nextAudioSource = musicSource2;
-    }
-
-    void SetupAudioSource(AudioSource source)
-    {
-        source.loop = true;
-        source.volume = defaultVolume;
-        source.playOnAwake = false;
-        source.spatialBlend = 0f;
-    }
-
-    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-    {
-        PlayMusicForScene(scene.name);
-    }
-
-    public void PlayMusicForScene(string sceneName)
-    {
-        AudioClip targetClip = GetMusicForScene(sceneName);
-        if (targetClip != null && targetClip != currentClip)
+        for (int t = 1; t <= 6; t++)
         {
-            PlayMusic(targetClip);
+            if (name.StartsWith($"stage_{t}_") || name.StartsWith($"round_{t}_"))
+                return t;
+        }
+        return 0;
+    }
+
+    AudioClip GetTerritoryClip(int t)
+    {
+        switch (t)
+        {
+            case 1: return territory1Music;
+            case 2: return territory2Music;
+            case 3: return territory3Music;
+            case 4: return territory4Music;
+            case 5: return territory5Music;
+            case 6: return territory6Music;
+            default: return null;
         }
     }
 
-    AudioClip GetMusicForScene(string sceneName)
+    // ================================================================
+    // 기본 음악 제어
+    // ================================================================
+    public void PlayIfChanged(AudioClip clip)
     {
-        switch (sceneName.ToLower())
-        {
-            case "mainmenu": return mainMenuMusic;
-            case "town": return townMusic;
-            case "equipmentshop": return equipmentShopMusic;
-            case "alchemistshop": return alchemistShopMusic;
-            case "hideout": return hideoutMusic;
-            case "stageselect": return stageSelectMusic;
-            case "stage_1_1":
-            case "stage_1_2":
-            case "stage_1_3":
-            case "stage_1_4":
-            case "stage_1_5":
-                return territory1Music;
-            case "stage_2_1":
-            case "stage_2_2":
-            case "stage_2_3":
-            case "stage_2_4":
-            case "stage_2_5":
-                return territory2Music;
-            case "stage_3_1":
-            case "stage_3_2":
-            case "stage_3_3":
-            case "stage_3_4":
-            case "stage_3_5":
-                return territory3Music;
-            case "stage_4_1":
-            case "stage_4_2":
-            case "stage_4_3":
-            case "stage_4_4":
-            case "stage_4_5":
-                return territory4Music;
-            case "stage_5_1":
-            case "stage_5_2":
-            case "stage_5_3":
-            case "stage_5_4":
-            case "stage_5_5":
-                return territory5Music;
-            default:
-                return null;
-        }
+        if (clip == null || clip == currentClip) return;
+        PlayMusic(clip);
     }
 
-    public void PlayMusic(AudioClip newClip)
+    public void PlayMusic(AudioClip clip)
     {
-        if (newClip == null || newClip == currentClip) return;
-        if (isCrossfading) StopAllCoroutines();
-
-        StartCoroutine(CrossfadeMusic(newClip));
+        if (clip == null) return;
+        if (xfade) StopAllCoroutines();
+        StartCoroutine(CrossfadeTo(clip));
     }
 
-    System.Collections.IEnumerator CrossfadeMusic(AudioClip newClip)
+    IEnumerator CrossfadeTo(AudioClip clip)
     {
-        isCrossfading = true;
+        xfade = true;
+        nextAS.clip = clip;
+        nextAS.volume = 0f;
+        nextAS.Play();
 
-        nextAudioSource.clip = newClip;
-        nextAudioSource.volume = 0f;
-        nextAudioSource.Play();
+        float startVol = current.volume;
+        float t = 0f;
 
-        float elapsed = 0f;
-        float startVolume = currentAudioSource.volume;
-
-        while (elapsed < crossfadeDuration)
+        while (t < crossfadeDuration)
         {
-            elapsed += Time.unscaledDeltaTime;
-            float t = elapsed / crossfadeDuration;
-
-            currentAudioSource.volume = Mathf.Lerp(startVolume, 0f, t);
-            nextAudioSource.volume = Mathf.Lerp(0f, defaultVolume, t);
-
+            t += Time.unscaledDeltaTime;
+            float k = t / crossfadeDuration;
+            current.volume = Mathf.Lerp(startVol, 0f, k);
+            nextAS.volume = Mathf.Lerp(0f, defaultVolume, k);
             yield return null;
         }
 
-        currentAudioSource.Stop();
-        currentAudioSource.volume = defaultVolume;
-        nextAudioSource.volume = defaultVolume;
+        current.Stop();
+        current.volume = defaultVolume;
+        nextAS.volume = defaultVolume;
 
-        AudioSource temp = currentAudioSource;
-        currentAudioSource = nextAudioSource;
-        nextAudioSource = temp;
+        var tmp = current;
+        current = nextAS;
+        nextAS = tmp;
 
-        currentClip = newClip;
-        isCrossfading = false;
+        currentClip = clip;
+        xfade = false;
     }
 
-    // ===== 볼륨 제어 부분 =====
-    public void SetMasterVolume(float value)
+    public void StopMusic()
     {
-        masterMixer.SetFloat("Master Volume", Mathf.Log10(Mathf.Clamp(value, 0.0001f, 1f)) * 20f);
+        if (xfade) StopAllCoroutines();
+        if (current != null && current.isPlaying) current.Stop();
+        if (nextAS != null && nextAS.isPlaying) nextAS.Stop();
+        currentClip = null;
     }
 
-    public void SetBGMVolume(float value)
+    // ================================================================
+    // 보스 페이즈 제어
+    // ================================================================
+    public void PlayBossPhase(int phase)
     {
-        masterMixer.SetFloat("BGM Volume", Mathf.Log10(Mathf.Clamp(value, 0.0001f, 1f)) * 20f);
+        AudioClip clip = phase switch
+        {
+            1 => bossPhase1Music,
+            2 => bossPhase2Music,
+            3 => bossPhase3Music,
+            _ => null
+        };
+        if (clip != null) PlayIfChanged(clip);
     }
 
-    public void SetSFXVolume(float value)
+    // ================================================================
+    // Volume Controls (항상 100% 기본)
+    // ================================================================
+    public void SetMasterVolume(float v) => SetDb("Master Volume", v);
+    public void SetBGMVolume(float v) => SetDb("BGM Volume", v);
+    public void SetSFXVolume(float v) => SetDb("SFX Volume", v);
+
+    void SetDb(string exposedName, float linear01)
     {
-        masterMixer.SetFloat("SFX Volume", Mathf.Log10(Mathf.Clamp(value, 0.0001f, 1f)) * 20f);
+        if (masterMixer == null) return;
+        float db;
+        if (linear01 <= 0.0001f) db = -80f;
+        else db = Mathf.Log10(linear01) * 20f * 0.5f;
+        masterMixer.SetFloat(exposedName, db);
     }
 }
