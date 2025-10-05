@@ -78,6 +78,15 @@ public class UIManager : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
+            //대화창이 열려 있으면 ESC는 대화창 닫기만 수행하고 종료
+            if (DialogueManager.Instance != null && DialogueManager.Instance.IsOpen)
+            {
+                DialogueManager.Instance.ForceClose();
+                return;
+            }
+
+            if (SceneManager.GetActiveScene().name == "MainMenu")
+                return;
             //Debug.Log("ESC 감지됨");
 
             if (SceneManager.GetActiveScene().name == "MainMenu")
