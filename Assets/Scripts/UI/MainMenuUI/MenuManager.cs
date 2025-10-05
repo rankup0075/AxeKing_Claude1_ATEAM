@@ -67,13 +67,6 @@ public class MenuManager : MonoBehaviour
 
     public void StartNewGame()
     {
-        // ==== 기존 PlayerPrefs 초기화는 주석 처리 ====
-        // PlayerPrefs.DeleteKey("Gold");
-        // PlayerPrefs.DeleteKey("CurrentTerritory");
-        // PlayerPrefs.DeleteKey("CurrentStage");
-        // PlayerPrefs.DeleteKey("CurrentRound");
-        // PlayerPrefs.Save();
-
         // ==== save.json 삭제 추가 ====
         string path = Path.Combine(Application.persistentDataPath, "save.json");
         if (File.Exists(path))
@@ -179,11 +172,6 @@ public class MenuManager : MonoBehaviour
 
     bool HasSaveData()
     {
-        // ==== 기존 PlayerPrefs 기반 체크는 주석 처리 ====
-        // return PlayerPrefs.HasKey("Gold") ||
-        //        PlayerPrefs.HasKey("CurrentTerritory") ||
-        //        PlayerPrefs.HasKey("CurrentStage");
-
         // ==== save.json 파일 존재 여부로 체크 ====
         string path = Path.Combine(Application.persistentDataPath, "save.json");
         return File.Exists(path);

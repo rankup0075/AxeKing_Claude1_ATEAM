@@ -22,7 +22,8 @@ public class PlayerController : MonoBehaviour
     private bool canAirAttack = true;
     private int airAttackHash = Animator.StringToHash("AirAttack");
 
-    private bool attackQueued = false; // ★ 짧은 입력 큐잉용
+    [SerializeField] private float airAttackCooldown = 0.14f;
+    private float lastAirAttackTime = 0f;
 
     // Components
     private Rigidbody rb;
@@ -144,6 +145,9 @@ public class PlayerController : MonoBehaviour
 
     void StartAirAttack()
     {
+        if (Time.time - lastAirAttackTime < airAttackCooldown) return;
+        lastAirAttackTime = Time.time;
+
         isAttacking = true;
         // 공중은 중력과 속도 유지
         animator.ResetTrigger(airAttackHash);
