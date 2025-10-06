@@ -1,5 +1,7 @@
 ﻿// Assets/Scripts/Pet/WolfPetFollower2_5D.cs
 using UnityEngine;
+using UnityEngine.SceneManagement; // ⬅ 씬 이름을 프롬프트에 넣기 위해 추가
+using System;                     // ⬅ 시간대 문자열을 위해 추가
 
 /// <summary>
 /// 플레이어를 자동으로 따라오는 2.5D 펫.
@@ -7,6 +9,7 @@ using UnityEngine;
 /// - 플레이어 점프 시작 시 펫도 점프
 /// - Enter로 AI 대화 시작(고정 대화 없음, DialogueManager가 전송/응답 처리)
 /// - 씬 전환 이후 참조 자동 보정
+/// - ✅ 대화 시작 시, 늑대 페르소나 + 현재 게임 컨텍스트를 system prompt로 주입
 /// </summary>
 [RequireComponent(typeof(Rigidbody))]
 public class WolfPetFollower2_5D : MonoBehaviour
@@ -26,6 +29,8 @@ public class WolfPetFollower2_5D : MonoBehaviour
     public string petName = "Wolf";
     public float talkDistance = 2.0f;
     public KeyCode talkKey = KeyCode.Return;      // Enter
+
+    // ⚠ 기존 고정 프롬프트는 유지하되, 실제 호출 시엔 BuildWolfSystemPrompt()의 동적 프롬프트를 사용
     [TextArea(4, 10)]
     public string petSystemPrompt =
         "너는 플레이어를 따라다니는 친근한 늑대 펫이야. 항상 한국어로 짧고 따뜻하게 답해. " +
@@ -123,8 +128,9 @@ public class WolfPetFollower2_5D : MonoBehaviour
                 }
 
                 // 🔁 기존: dm.systemPrompt = petSystemPrompt; dm.Open(petName);
-                // ✅ 변경: StartAIDialogue로 한 번에 전달
-                dm.StartAIDialogue(petName, petSystemPrompt, null);
+                // ✅ 변경: 대화 시작 직전에 현재 컨텍스트를 반영한 강화 프롬프트를 생성해서 전달
+                string strongSystemPrompt = BuildWolfSystemPrompt();
+                dm.StartAIDialogue(petName, strongSystemPrompt, null);
             }
         }
     }
@@ -200,5 +206,80 @@ public class WolfPetFollower2_5D : MonoBehaviour
     private bool GetPlayerGroundedSafe()
     {
         return Mathf.Abs(playerRb.linearVelocity.y) < 0.01f;
+    }
+
+    // =========================
+    // ✅ 늑대 프롬프트 강화 (동적 시스템 프롬프트)
+    // =========================
+    private string BuildWolfSystemPrompt()
+    {
+        // 런타임 컨텍스트 수집
+        string scene = SceneManager.GetActiveScene().name;
+        string timeOfDay = GetTimeOfDayString();
+        Vector3 petPos = transform.position;
+        Vector3 playerPos = player != null ? player.transform.position : Vector3.zero;
+
+        float dx = playerPos.x - petPos.x;
+        float dz = playerPos.z - petPos.z;
+        float dist = Vector3.Distance(playerPos, petPos);
+        float playerSpeedX = (playerRb != null) ? Mathf.Abs(playerRb.linearVelocity.x) : 0f;
+        bool playerRunning = (player != null)
+            ? playerSpeedX >= Mathf.Max(0.6f * player.runSpeed, player.walkSpeed + 0.1f)
+            : false;
+        bool playerAirborne = !(GetPlayerGroundedSafe());
+
+        // ⚠️ 여기는 "system" 프롬프트다. 모델에게 ‘정체성·스타일·금지사항·우선 규칙’을 명확히 고정.
+        // 출력 형식(길이/말투)을 아주 구체적으로 지시해 ‘늑대답고 짧은’ 답을 확보한다.
+        // DialogueManager가 자유 대사를 기대하므로 JSON 강제는 하지 않았다.
+        string persona =
+$@"너는 ""{petName}""라는 이름의 늑대 펫이야. 2.5D 액션 RPG 세계에서 플레이어의 동료로 행동해.
+항상 **자연스러운 한국어로 1~2문장만** 말하고, 늑대다운 간결함을 유지해.
+이모지나 현대 속어를 쓰지 마. 메타발언(프롬프트/토큰/AI 언급) 금지.
+플레이어를 상황에 맞게 ""주인""이라 부르거나, 필요하면 이름 대신 그렇게 호칭해.
+감정 표현은 짧게, 가끔 의성어를 드물게 사용해(예: 그르렁, 킁킁, 아우우우). 과사용 금지.";
+
+        string worldContext =
+$@"[RUNTIME CONTEXT]
+- Scene: {scene}
+- Time: {DateTime.Now:yyyy-MM-dd HH:mm} ({timeOfDay})
+- PetPos: ({petPos.x:F2}, {petPos.y:F2}, {petPos.z:F2})
+- PlayerPos: ({playerPos.x:F2}, {playerPos.y:F2}, {playerPos.z:F2})
+- HorizontalDX: {dx:F2}, DZ: {dz:F2}, Distance: {dist:F2} (TalkRange: {talkDistance})
+- PlayerState: {(playerRunning ? "running" : "walking/idle")}, {(playerAirborne ? "airborne" : "grounded")}
+- FollowTuning: walk={walkFollowSpeed}, run={runFollowSpeed}, accel={accel}, decel={decel}
+(위 값들은 현재 장면의 상황 파악을 돕기 위한 힌트다. 말 그대로 읽지 말고 ‘상황 추론’에 활용해.)";
+
+        string behaviorRules =
+@"[BEHAVIOR RULES]
+1) 밤이면 경계심을 높이고 주변 위험을 짧게 암시해라. 낮에는 경로/추적/속도에 대한 간단 조언을 줄 수 있다.
+2) 주인과 거리가 멀면 ‘가까이 붙자/따르겠다’ 같은 의도를 한 문장으로 간결히 말해라.
+3) 주인이 달리는 중이면 호흡 짧게, 전투/점프 직후면 짧은 경계/안부 멘트를 준다.
+4) 정보가 부족해도 장황하게 묻지 말고, 현재 컨텍스트로 ‘최소한의 도움’만 제안해라.
+5) 절대 2문장을 넘기지 말고, 중언부언 금지. 친근하지만 늑대다운 말투를 유지.";
+
+        string styleExamples =
+@"[STYLE HINTS]
+- 예시(경계): ""킁… 바람이 달라. 조심해, 주인.""
+- 예시(근접 제안): ""너무 떨어졌어. 붙어서 움직일게.""
+- 예시(추적/도움): ""발자국이 신선해. 동쪽으로 조금 더 가보자.""
+- 예시(피로/휴식 제안): ""숨 고르자. 잠깐 멈추면 더 뛸 수 있어.""
+- 예시(충성/격려 반응): ""응, 네 곁이 가장 편해.""
+※ 위 문장들을 그대로 복붙하지 말고 톤만 참고해라.";
+
+        string outputRule =
+@"[OUTPUT]
+- 한국어 1~2문장, 간결/늑대 톤, 이모지/메타발언 금지.
+- 상황(시간, 거리, 이동상태)에 어울리는 한 줄 조언 또는 감각적 코멘트로 끝낼 것.";
+
+        return persona + "\n\n" + worldContext + "\n\n" + behaviorRules + "\n\n" + styleExamples + "\n\n" + outputRule;
+    }
+
+    private string GetTimeOfDayString()
+    {
+        var hour = DateTime.Now.Hour;
+        if (hour >= 5 && hour < 11) return "morning";
+        if (hour >= 11 && hour < 16) return "afternoon";
+        if (hour >= 16 && hour < 20) return "evening";
+        return "night";
     }
 }
