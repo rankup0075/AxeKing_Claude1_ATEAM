@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 658c157f6a8883b4fb5f44283db29351
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 304443
+  packageName: KCISA - Hwaseong Fortress Gates
+  packageVersion: 1.0
+  assetPath: Assets/HwaseongForteressGate/Settings/New Universal Render Pipeline
+    Asset_Renderer.asset
+  uploadId: 714616

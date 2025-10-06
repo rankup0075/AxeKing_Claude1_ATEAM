@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: abc00000000001662786125670964010
+NativeFormatImporter:
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 304443
+  packageName: KCISA - Hwaseong Fortress Gates
+  packageVersion: 1.0
+  assetPath: Assets/HwaseongForteressGate/Materials/MaterialInstances/MI_T_RammedEarth.mat
+  uploadId: 714616
