@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Reflection;
 
 [RequireComponent(typeof(BossHealth))]
 public class BossController : MonoBehaviour
@@ -33,6 +34,7 @@ public class BossController : MonoBehaviour
     private Coroutine attackLoopCoroutine;
     private bool isAlive = true;
     private bool isInvulnerable = false;
+
 
     [Header("Movement")]
     public bool enableMovement = true;
@@ -204,7 +206,7 @@ public class BossController : MonoBehaviour
                 break;
         }
 
-        // 2) 반드시 지면으로 투영 (groundLayerMask 필요). 실패하면 기존 center 사용
+        // 2) 지면으로 투영 (groundLayerMask 필요). 실패하면 기존 center 유지.
         RaycastHit groundHit;
         Vector3 rayStart = center + Vector3.up * 10f;
         if (Physics.Raycast(rayStart, Vector3.down, out groundHit, 50f, groundLayerMask))
@@ -213,54 +215,111 @@ public class BossController : MonoBehaviour
         }
         else
         {
-            // 안전히 약간 띄워서 Z-fighting 방지
-            center.y = center.y + 0.05f;
+            center.y += 0.05f;
         }
 
-        // 3) preview 표시 (항상 눈에 보이도록 Y 스케일 보정)
+        // 3) preview 표시 + 강제 가시화 검사
         GameObject preview = null;
         if (skill.previewVFX != null)
         {
             preview = Instantiate(skill.previewVFX, center + Vector3.up * 0.02f, Quaternion.identity);
+
             float diameter = Mathf.Max(0.01f, skill.aoeRadius * 2f);
-            // 강제 스케일: XZ는 지름으로, Y는 얇은 높이(0.2)로 설정
             preview.transform.localScale = new Vector3(diameter, 0.2f, diameter);
-            // Collider가 있는 경우 시각용이므로 Collider 제거 또는 비활성화 안전 처리
+
+            // 비주얼 전용이므로 Collider 비활성화
             foreach (var col in preview.GetComponentsInChildren<Collider>()) col.enabled = false;
-            Destroy(preview, Mathf.Max(0.1f, skill.aoeDelay + 0.25f));
+            // 렌더러 강제 활성화(프리팹이 꺼져있어도 보이게)
+            foreach (var r in preview.GetComponentsInChildren<Renderer>()) r.enabled = true;
+
+            // yield 한 프레임 줘서 인스턴스가 그려지게 함
+            yield return null;
+        }
+        else
+        {
+            // preview prefab이 잘못되어 있으면 임시 원통으로 표시 (디버그용)
+            preview = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            preview.transform.position = center + Vector3.up * 0.02f;
+            float diameter = Mathf.Max(0.01f, skill.aoeRadius * 2f);
+            preview.transform.localScale = new Vector3(diameter, 0.02f, diameter);
+            // 컬라이더 제거
+            foreach (var col in preview.GetComponentsInChildren<Collider>()) Destroy(col);
+            var mat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
+            mat.color = Color.green;
+            foreach (var r in preview.GetComponentsInChildren<Renderer>()) r.material = mat;
+            yield return null;
         }
 
         Debug.Log($"[Boss] AOE preview at {center} radius {skill.aoeRadius} (delay {skill.aoeDelay})");
 
-        // 4) 대기
+        // 4) 대기 (플레이어가 보고 피할 시간)
         if (skill.aoeDelay > 0f) yield return new WaitForSeconds(skill.aoeDelay);
 
-        // 5) 폭발: OverlapSphere로 충돌자 찾음. 플레이어의 '발 위치'로 공중 회피 판정
+        // 5) 폭발 직전 preview 제거(있으면)
+        if (preview != null) Destroy(preview);
+
+        // 6) 폭발: OverlapSphere로 충돌자 찾음. 플레이어 '발' 높이 검사로 공중 회피 판정
         Collider[] hits = Physics.OverlapSphere(center, skill.aoeRadius, playerLayerMask);
         Debug.Log($"[Boss] AOE explode hits count: {hits.Length}");
         foreach (var c in hits)
         {
             if (c == null) continue;
+
             float feetY = c.bounds.min.y;
 
-            // maxVerticalOffset이 0이면 고정으로 타격. 양수이면 발 높이 검사로 공중 회피 적용
             if (skill.maxVerticalOffset > 0f && feetY > center.y + skill.maxVerticalOffset)
             {
                 Debug.Log($"[Boss] {c.name} avoided by vertical offset. feetY={feetY:F2} centerY={center.y:F2}");
                 continue;
             }
 
-            // 데미지 전달 (SendMessage 안전 호출)
+            // 데미지 전달
             c.gameObject.SendMessage("TakeDamage", skill.damage, SendMessageOptions.DontRequireReceiver);
-            Debug.Log($"[Boss] AOE damaged {c.name} for {skill.damage}");
+            Debug.Log($"[Boss] AOE attempted damage {c.name} for {skill.damage}");
+
+            // 남은 HP 디버그 출력: PlayerHealth가 있으면 필드/프로퍼티를 리플렉션으로 찾아서 출력
+            var ph = c.GetComponent("PlayerHealth");
+            string hpLog = "unknown";
+            if (ph != null)
+            {
+                object hpVal = TryExtractHP(ph);
+                if (hpVal != null) hpLog = hpVal.ToString();
+                Debug.Log($"[Boss] {c.name} remaining HP (reflection) = {hpLog}");
+            }
         }
 
-        // 6) 임팩트 VFX 생성 및 안전 삭제. Collider 비활성화
+        // 7) 임팩트 VFX 생성 및 안전 삭제
         if (skill.impactVFX != null)
         {
             var imp = Instantiate(skill.impactVFX, center, Quaternion.identity);
             foreach (var col in imp.GetComponentsInChildren<Collider>()) col.enabled = false;
             Destroy(imp, 3f);
+        }
+
+        yield break;
+
+        // 지역 함수: 리플렉션으로 흔한 필드/프로퍼티 이름 찾아 HP 반환
+        object TryExtractHP(object comp)
+        {
+            if (comp == null) return null;
+            var t = comp.GetType();
+            string[] names = new string[] { "currentHP", "currentHealth", "hp", "health", "CurrentHP", "Health", "HP" };
+            foreach (var n in names)
+            {
+                var f = t.GetField(n, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                if (f != null)
+                {
+                    var v = f.GetValue(comp);
+                    if (v != null) return v;
+                }
+                var p = t.GetProperty(n, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                if (p != null && p.CanRead)
+                {
+                    var v2 = p.GetValue(comp);
+                    if (v2 != null) return v2;
+                }
+            }
+            return null;
         }
     }
 

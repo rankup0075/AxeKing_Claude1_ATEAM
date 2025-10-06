@@ -100,6 +100,13 @@ public class WolfPetFollower2_5D : MonoBehaviour
                 return;
             }
 
+            if (UIManager.Instance != null)
+            {
+                var cg = UIManager.Instance.settingsPanel_InGame?.GetComponent<CanvasGroup>();
+                if (cg != null && cg.alpha > 0.5f)
+                    return;
+            }
+
             // player가 없으면 대화 트리거 중단
             if (player == null) return;
 

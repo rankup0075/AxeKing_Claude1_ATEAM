@@ -246,6 +246,63 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1965489812}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &448813599
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1567307836069903119, guid: 607d0dfdf16c2f64abf88e635ee437d3, type: 3}
+      propertyPath: m_Name
+      value: PlayerRoot
+      objectReference: {fileID: 0}
+    - target: {fileID: 1577563922562361461, guid: 607d0dfdf16c2f64abf88e635ee437d3, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -20.153496
+      objectReference: {fileID: 0}
+    - target: {fileID: 1577563922562361461, guid: 607d0dfdf16c2f64abf88e635ee437d3, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1577563922562361461, guid: 607d0dfdf16c2f64abf88e635ee437d3, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1577563922562361461, guid: 607d0dfdf16c2f64abf88e635ee437d3, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1577563922562361461, guid: 607d0dfdf16c2f64abf88e635ee437d3, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1577563922562361461, guid: 607d0dfdf16c2f64abf88e635ee437d3, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1577563922562361461, guid: 607d0dfdf16c2f64abf88e635ee437d3, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1577563922562361461, guid: 607d0dfdf16c2f64abf88e635ee437d3, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1577563922562361461, guid: 607d0dfdf16c2f64abf88e635ee437d3, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1577563922562361461, guid: 607d0dfdf16c2f64abf88e635ee437d3, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 607d0dfdf16c2f64abf88e635ee437d3, type: 3}
 --- !u!1 &777241126
 GameObject:
   m_ObjectHideFlags: 0
@@ -705,18 +762,18 @@ MonoBehaviour:
     startHP: 1000
     idleBeforeStart: 0
     skills:
-    - skillName: Attack
+    - skillName: FireGround
       type: 1
       damage: 10
       cooldown: 5
-      castDelay: 1
+      castDelay: 3
       interruptible: 0
       projectilePrefab: {fileID: 0}
       projectileSpeed: 0
       projectileLife: 0
       aoeRadius: 0
       aoeDelay: 0
-      aoeTarget: 3
+      aoeTarget: 2
       randomRadius: 3
       previewVFX: {fileID: 1587152011331812032, guid: 1cbe8b9b15195474c986e10852eeb395, type: 3}
       impactVFX: {fileID: 714281210294565111, guid: 0cc629869e17a8643a6f10b4a1837752, type: 3}
@@ -743,6 +800,9 @@ MonoBehaviour:
   idleChance: 0.3
   minIdleTime: 1
   maxIdleTime: 3
+  groundLayerMask:
+    serializedVersion: 2
+    m_Bits: 256
 --- !u!114 &1238473256
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6100,3 +6160,4 @@ SceneRoots:
   - {fileID: 1965489812}
   - {fileID: 1079336690}
   - {fileID: 1238473251}
+  - {fileID: 448813599}
