@@ -8,7 +8,9 @@ public class BossConfig : ScriptableObject
     public LayerMask playerLayer;
     public string animParamMoveSpeed = "MoveSpeed";
     public string animTriggerBasic = "BasicAttack";
-    public string animTriggerSkill = "Skill";
+    public string animTriggerSkillA = "SkillA";
+    public string animTriggerSkillB = "SkillB";
+    public string animTriggerSkillC = "SkillC";
     public float contactDamageInterval = 0.25f;
 
     [Header("기본 투사체 공통")]
@@ -44,8 +46,11 @@ public class BossConfig : ScriptableObject
         [Range(0, 1)] public float projChance = 0.5f;
         [Range(0, 1)] public float laserChance = 0.25f; // 가장 낮게 두면 됨
 
-        [Header("쿨타임")]
-        public Vector2 skillInterval = new Vector2(2.0f, 3.0f);
+        [Header("공격 주기(기본+스킬 통합)")]
+        public Vector2 attackInterval = new Vector2(2f, 3f);
+
+        //[Header("쿨타임")]
+        //public Vector2 skillInterval = new Vector2(2.0f, 3.0f);
 
         [Header("A. 폭발(원통)")]
         public GameObject explodePreviewPrefab; // 범위 미리보기
@@ -72,6 +77,11 @@ public class BossConfig : ScriptableObject
         public float laserWidth = 1.0f;
         public float laserDamageOnce = 30f;
         public float laserLife = 0.6f;
+
+        [Header("Laser Offsets")]
+        public float laserYOffset = 1.0f;
+        [Header("C. 레이저 애니메이션")]
+        public float laserAnimDuration = 3.15f; // 애니메이션 길이에 맞게 (초 단위)
     }
     public Phase1 phase1;
 
@@ -134,6 +144,8 @@ public class BossConfig : ScriptableObject
         public float beamWidth = 1.0f;
         public float beamDamageOnce = 24f;
         public float beamLife = 0.6f;
+
+
 
         [Header("스킬 쿨")]
         public Vector2 skillInterval = new Vector2(1.8f, 2.6f);

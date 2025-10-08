@@ -7,6 +7,11 @@ public class LaserSweep : MonoBehaviour
     public float damageOnce = 20f;
     public LayerMask targetLayer;
 
+    [Header("Direction")]
+    public bool horizontal = true;   // 인스펙터에서 가로/세로 선택
+
+
+
     void Start()
     {
         Destroy(gameObject, life);
@@ -30,5 +35,12 @@ public class LaserSweep : MonoBehaviour
             else { s.x = width; s.y = 1; s.z = length; }
             col.size = s;
         }
+    }
+
+    public void ApplySpan(float horizontalSpan, float verticalSpan)
+    {
+        // 프리팹에서 고른 방향(horizontal)에 맞춰 길이 적용
+        float len = horizontal ? horizontalSpan : verticalSpan;
+        SetSpan(len, horizontal);
     }
 }

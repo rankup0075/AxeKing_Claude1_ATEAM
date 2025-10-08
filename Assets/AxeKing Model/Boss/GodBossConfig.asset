@@ -17,7 +17,9 @@ MonoBehaviour:
     m_Bits: 64
   animParamMoveSpeed: MoveSpeed
   animTriggerBasic: BasicAttack
-  animTriggerSkill: Skill
+  animTriggerSkillA: SkillA
+  animTriggerSkillB: SkillB
+  animTriggerSkillC: SkillC
   contactDamageInterval: 0.25
   basicProjectilePrefab: {fileID: 6961112297242915309, guid: 8b1aa9511de94da4ebdbd940f42db947, type: 3}
   basicProjectileSpeed: 12
@@ -29,16 +31,16 @@ MonoBehaviour:
     runBool: Run
   phase1:
     followChance: 0.5
-    moveSpeed: 3
-    idleTimeMin: 0.5
-    idleTimeMax: 1.2
-    basicAttackChance: 0.5
+    moveSpeed: 6
+    idleTimeMin: 1.5
+    idleTimeMax: 3
+    basicAttackChance: 0
     explodeChance: 0
     projChance: 0
-    laserChance: 0
-    skillInterval: {x: 2, y: 3}
-    explodePreviewPrefab: {fileID: 0}
-    explodeEffectPrefab: {fileID: 0}
+    laserChance: 1
+    attackInterval: {x: 2, y: 3}
+    explodePreviewPrefab: {fileID: 8221082003003751043, guid: a5b7c4e87793fe44f9917fba0f13f09c, type: 3}
+    explodeEffectPrefab: {fileID: 3123765842377897132, guid: 64c4844c323b3b642a69e76e0c451e1f, type: 3}
     explodeTrackSeconds: 2
     explodeDelay: 1
     explodeRadius: 1.2
@@ -46,17 +48,19 @@ MonoBehaviour:
     explodeDamagePerTick: 10
     explodeTickInterval: 0.15
     explodeLife: 2
-    skillProjectilePrefab: {fileID: 0}
+    skillProjectilePrefab: {fileID: 1893502315026987925, guid: 0a1e16d5d2f70a94dae21a2941ec4c4d, type: 3}
     skillProjectileSpeed: 16
     skillProjectileLife: 6
     skillProjectileDamage: 18
-    laserPreviewPrefab: {fileID: 0}
-    laserBeamPrefab: {fileID: 0}
+    laserPreviewPrefab: {fileID: 8308576747079574716, guid: 58d23459e5d95414eb58db67c52569e6, type: 3}
+    laserBeamPrefab: {fileID: 8321630790718445980, guid: 8d5b368e1c28c424da5346871faeaf96, type: 3}
     laserTrackSecondsY: 2
-    laserDelay: 1
+    laserDelay: 0.5
     laserWidth: 1
     laserDamageOnce: 30
     laserLife: 0.6
+    laserYOffset: 1
+    laserAnimDuration: 1.2
   phase2:
     slowSpeed: 3.2
     fastSpeed: 6.5

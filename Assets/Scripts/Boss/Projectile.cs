@@ -10,6 +10,7 @@ public class Projectile : MonoBehaviour
     public bool destroyOnAnyHit = true;
     public GameObject hitVfx;
 
+    Rigidbody rb;
     Vector3 _dir;
 
     public void Fire(Vector3 dir)
@@ -23,11 +24,11 @@ public class Projectile : MonoBehaviour
         transform.position += _dir * speed * Time.deltaTime;
     }
 
-    private void OnTriggerEnter(Collider other)
+    private void OnCollisionEnter(Collision col)
     {
-        if (((1 << other.gameObject.layer) & hitLayers.value) == 0) return;
+        if (((1 << col.gameObject.layer) & hitLayers.value) == 0) return;
 
-        var d = other.GetComponentInParent<IDamageable>();
+        var d = col.collider.GetComponentInParent<IDamageable>();
         if (d != null) d.ApplyDamage(damage);
 
         if (hitVfx) Instantiate(hitVfx, transform.position, Quaternion.identity);

@@ -19,6 +19,8 @@ public class BossAI : MonoBehaviour, IDamageable
     public bool faceToPlayer = true;
     public float turnLerp = 12f;
 
+    bool _isBusy => _isAttacking || _isExploding;
+
     public Transform firePoint;
 
     Animator _anim;
@@ -78,49 +80,76 @@ public class BossAI : MonoBehaviour, IDamageable
     {
         var p1 = config.phase1;
 
-        // 이동
-        if (!_isAttacking)   // 공격 중이면 이동 금지
+        if (_isBusy)
         {
-            if (Time.time >= _p1StateUntil)
-            {
-                _p1Following = Random.value < p1.followChance;
-                _p1StateUntil = Time.time + Random.Range(p1.idleTimeMin, p1.idleTimeMax);
-            }
+            SetMoveAnim(0f);
+            return;
+        }
 
-            if (_p1Following)
-            {
-                transform.position += DirToPlayerXZ() * p1.moveSpeed * Time.deltaTime;
-                SetMoveAnim(p1.moveSpeed);
-            }
-            else
-            {
-                SetMoveAnim(0f);
-            }
+        // --- 이하 기존 이동 + 공격 로직 ---
+        if (Time.time >= _p1StateUntil)
+        {
+            _p1Following = Random.value < p1.followChance;
+            _p1StateUntil = Time.time + Random.Range(p1.idleTimeMin, p1.idleTimeMax);
+        }
+
+        if (_p1Following)
+        {
+            transform.position += DirToPlayerXZ() * p1.moveSpeed * Time.deltaTime;
+            SetMoveAnim(p1.moveSpeed);
+        }
+        else
+            SetMoveAnim(0f);
+
+        if (!IsInvoking(nameof(P1_AttackDecision)))
+        {
+            float next = Random.Range(p1.attackInterval.x, p1.attackInterval.y);
+            Invoke(nameof(P1_AttackDecision), next);
+        }
+    }
+
+    // === 통합 공격 확률 로직 추가 ===
+    void P1_AttackDecision()
+    {
+        if (_isBusy) return; // 공격 중이면 무시
+
+        var p1 = config.phase1;
+
+        // 전체 확률 합
+        float total = p1.basicAttackChance + p1.explodeChance + p1.projChance + p1.laserChance;
+        if (total <= 0f) return;
+
+        float roll = Random.value * total;
+
+        if (roll < p1.basicAttackChance)
+        {
+            TryBasicAttack();
+        }
+        else if (roll < p1.basicAttackChance + p1.explodeChance)
+        {
+            StartCoroutine(P1_Explode());
+        }
+        else if (roll < p1.basicAttackChance + p1.explodeChance + p1.projChance)
+        {
+            StartCoroutine(P1_SkillProjectile());
         }
         else
         {
-            SetMoveAnim(0f); // 공격 중엔 항상 Idle 상태
+            StartCoroutine(P1_HLaser());
         }
 
-        // ==== 기본 공격 ====
-        if (ReadyBasic() && Random.value < p1.basicAttackChance)
-        {
-            TryBasicAttack();   // 한 번만 던지기
-        }
-
-        // ==== 스킬 ====
-        if (!IsInvoking(nameof(P1_SkillGate)))
-        {
-            float next = Random.Range(p1.skillInterval.x, p1.skillInterval.y);
-            Invoke(nameof(P1_SkillGate), next);
-        }
-    }
+        // 다음 공격 결정 예약
+        float next = Random.Range(p1.attackInterval.x, p1.attackInterval.y);
+        Invoke(nameof(P1_AttackDecision), next);
+    }   
 
     // --- 새로 추가 ---
     void TryBasicAttack()
     {
-        if (_isAttacking) return;        // 이미 공격 중이면 무시
-        _isAttacking = true;             // 공격 상태 진입
+        anim.ResetTrigger(config.animTriggerBasic);
+
+        if (_isAttacking || _isExploding) return;  // 스킬 중이면 발사 금지
+        _isAttacking = true;
 
         anim.SetTrigger(config.animTriggerBasic);
         StartCoroutine(ThrowProjectile(0.4f));
@@ -176,113 +205,188 @@ public class BossAI : MonoBehaviour, IDamageable
         Debug.Log("Projectile Fired");
     }
 
-    void BasicRanged(GameObject prefab, float speed, float life, LayerMask layers, float dmg, Vector3? posOverride = null)
-    {
-        Vector3 startPos = posOverride ?? transform.position + Vector3.up * 1.2f;
-        var go = Instantiate(prefab, startPos, Quaternion.identity);
-        var pr = go.GetComponent<Projectile>();
-        pr.speed = speed;
-        pr.life = life;
-        pr.damage = dmg;
-        pr.hitLayers = layers;
-        pr.destroyOnAnyHit = true;
-        pr.Fire(DirToPlayerXZ());
-    }
-
-    void P1_SkillGate()
-    {
-        var p1 = config.phase1;
-        float r = Random.value;
-        if (r < p1.explodeChance) StartCoroutine(P1_Explode());
-        else if (r < p1.explodeChance + p1.projChance) StartCoroutine(P1_SkillProjectile());
-        else StartCoroutine(P1_HLaser());
-    }
-
+    bool _isExploding;
     IEnumerator P1_Explode()
     {
-        var p1 = config.phase1;
-        _anim.SetTrigger(config.animTriggerSkill);
+        if (_isExploding) yield break;   // 이미 폭발 중이면 무시
+        _isExploding = true;
 
-        // X 추적 2초
-        float t = 0;
-        Vector3 pos = Vector3.zero;
+        var p1 = config.phase1;
+
+        // 프리뷰 생성
+        var preview = Instantiate(
+            p1.explodePreviewPrefab,
+            new Vector3(player.position.x, transform.position.y, transform.position.z),
+            Quaternion.identity);
+
+        float t = 0f;
         while (t < p1.explodeTrackSeconds)
         {
-            pos = new Vector3(player.position.x, transform.position.y, transform.position.z);
+            if (preview != null)
+            {
+                Vector3 follow = new Vector3(player.position.x, transform.position.y, transform.position.z);
+                preview.transform.position = follow;
+            }
             t += Time.deltaTime;
             yield return null;
         }
 
-        // 프리뷰 → 실제
-        yield return PreviewSpawner.SpawnAfter(
-            p1.explodePreviewPrefab, p1.explodeEffectPrefab, pos, Quaternion.identity, p1.explodeDelay,
-            a =>
-            {
-                // 원통 콜라이더에 DamageArea 세팅
-                var da = a.GetComponent<DamageArea>();
-                if (da)
-                {
-                    da.damage = p1.explodeDamagePerTick;
-                    da.continuous = true;
-                    da.tickInterval = p1.explodeTickInterval;
-                    da.life = p1.explodeLife;
-                    da.targetLayer = config.playerLayer;
-                }
-                // 콜라이더 사이즈는 프리팹에서 반경/높이를 맞추는 것을 권장
-            });
+        yield return new WaitForSeconds(p1.explodeDelay);
+
+        // 폭발 직전 애니메이션 트리거
+        anim.ResetTrigger(config.animTriggerSkillA);   // 중복 방지
+        anim.SetTrigger(config.animTriggerSkillA);
+
+        // 폭발 생성
+        var explosion = Instantiate(p1.explodeEffectPrefab, preview.transform.position, Quaternion.identity);
+        var col = explosion.GetComponent<CapsuleCollider>();
+        if (col)
+        {
+            col.radius = p1.explodeRadius;
+            col.height = p1.explodeHeight;
+        }
+
+        // 8. 폭발 콜라이더와 DamageArea 설정
+        var da = explosion.GetComponent<DamageArea>();
+        if (da)
+        {
+            da.damage = p1.explodeDamagePerTick;
+            da.continuous = true;
+            da.tickInterval = p1.explodeTickInterval;
+            da.life = p1.explodeLife;
+            da.targetLayer = config.playerLayer;
+        }
+
+        // 9. 프리뷰 제거
+        Destroy(preview, 0.1f);
+
+        // 10. 폭발 이펙트가 끝날 때까지 대기
+        yield return new WaitForSeconds(p1.explodeLife);
+
+        // 11. 스킬 종료 → 이동 가능
+        _isExploding = false;
     }
+
+
+
 
     IEnumerator P1_SkillProjectile()
     {
-        var p1 = config.phase1;
-        _anim.SetTrigger(config.animTriggerSkill);
+        if (_isExploding || _isAttacking) yield break; // 다른 행동 중엔 금지
+        _isExploding = true; // 행동 락
 
-        // 플레이어 마지막 위치를 기준으로 일직선 발사
+        var p1 = config.phase1;
+
+        // 1. 애니메이션 트리거
+        anim.ResetTrigger(config.animTriggerSkillB);
+        anim.SetTrigger(config.animTriggerSkillB);
+
+        // 2. 플레이어의 마지막 위치 기록
         Vector3 aimPos = player.position;
-        yield return null; // 짧은 텀로 "마지막 위치" 고정
-        var go = Instantiate(p1.skillProjectilePrefab, transform.position + Vector3.up * 1.2f, Quaternion.identity);
+        aimPos.y = transform.position.y + 1.2f; // 보스 눈높이 혹은 firePoint 높이에 맞춤
+        yield return new WaitForSeconds(0.3f); // 모션 선딜 타이밍 맞춰 조정
+
+        // 3. 투사체 생성
+        Vector3 firePos = firePoint
+            ? firePoint.position
+            : transform.position + Vector3.up * 1.2f;
+        var go = Instantiate(p1.skillProjectilePrefab, firePos, Quaternion.identity);
+
         var pr = go.GetComponent<Projectile>();
-        pr.speed = p1.skillProjectileSpeed;
-        pr.life = p1.skillProjectileLife;
-        pr.damage = p1.skillProjectileDamage;
-        pr.hitLayers = config.playerLayer;
-        pr.destroyOnAnyHit = true; // 명중 시 이펙트 소멸
-        pr.Fire((aimPos - transform.position).normalized);
+        if (pr)
+        {
+            pr.speed = p1.skillProjectileSpeed;
+            pr.life = p1.skillProjectileLife;
+            pr.damage = p1.skillProjectileDamage;
+            pr.hitLayers = config.playerLayer; // 필요 시 Player+Wall
+            pr.destroyOnAnyHit = true;
+
+            // 조준 방향 수평 정렬
+            Vector3 dir = aimPos - firePos;
+            dir.y = 0; // 수평 발사
+            pr.Fire(dir.normalized);
+        }
+
+        // 4. 애니메이션 및 투사체 종료까지 대기
+        yield return new WaitForSeconds(0.8f);
+        _isExploding = false;
     }
 
+    
     IEnumerator P1_HLaser()
     {
-        var p1 = config.phase1;
-        _anim.SetTrigger(config.animTriggerSkill);
+        if (_isExploding || _isAttacking) yield break;
+        _isExploding = true;
 
-        // Y 추적 2초
-        float t = 0;
-        float y = player.position.z;
-        while (t < p1.laserTrackSecondsY)
+        var p1 = config.phase1;
+
+        float y = player.position.y + p1.laserYOffset;
+
+        // === 프리뷰 시작 ===
+        var preview = Instantiate(
+            p1.laserPreviewPrefab,
+            new Vector3(transform.position.x, y, transform.position.z),
+            Quaternion.identity);
+
+        preview.transform.localScale = new Vector3(arenaHorizontalSpan, 1f, p1.laserWidth);
+
+        // 프리뷰 시작 시 애니메이션(기 모으기) 트리거
+        anim.ResetTrigger(config.animTriggerSkillC);
+        anim.SetTrigger(config.animTriggerSkillC);
+
+        // === 2초 안에 추적 + 잠깐 사라짐을 모두 포함시킴 ===
+        float totalChargeTime = 2f;   // 기 모으는 총 시간
+        float vanishGap = 0.5f;         // 프리뷰 사라지고 잠깐의 공백
+        float trackTime = Mathf.Max(0f, totalChargeTime - vanishGap);
+
+        // (1) trackTime 동안 플레이어 Y좌표 추적
+        float t = 0f;
+        while (t < trackTime)
         {
-            y = player.position.z;
+            y = player.position.y + p1.laserYOffset;
+            if (preview)
+                preview.transform.position =
+                    new Vector3(transform.position.x, y, transform.position.z);
             t += Time.deltaTime;
             yield return null;
         }
 
-        // 프리뷰
-        Vector3 pos = new Vector3(transform.position.x, transform.position.y, y);
-        yield return PreviewSpawner.SpawnAfter(
-            p1.laserPreviewPrefab, p1.laserBeamPrefab, pos, Quaternion.identity, p1.laserDelay,
-            a =>
-            {
-                var ls = a.GetComponent<LaserSweep>();
-                if (ls)
-                {
-                    ls.width = p1.laserWidth;
-                    ls.damageOnce = p1.laserDamageOnce;
-                    ls.life = p1.laserLife;
-                    ls.GetComponent<LaserSweep>().SetSpan(arenaHorizontalSpan, true);
-                    var col = a.GetComponent<BoxCollider>();
-                    if (col) col.isTrigger = true;
-                }
-            });
+        // (2) 잠깐의 사라지는 공백
+        if (preview) Destroy(preview);
+        yield return new WaitForSeconds(vanishGap);
+
+        // === 1.41초 시점: 두 팔 벌리기 + 레이저 발사 ===
+        var beam = Instantiate(
+            p1.laserBeamPrefab,
+            new Vector3(transform.position.x, y, transform.position.z),
+            Quaternion.identity);
+
+        var ls = beam.GetComponent<LaserSweep>();
+        if (ls)
+        {
+            ls.width = p1.laserWidth;
+            ls.damageOnce = p1.laserDamageOnce;
+            ls.life = p1.laserLife;
+            ls.targetLayer = config.playerLayer;
+            ls.ApplySpan(arenaHorizontalSpan, arenaVerticalSpan);
+
+            bool horiz = ls.horizontal;
+            float len = horiz ? arenaHorizontalSpan : arenaVerticalSpan;
+            float wid = p1.laserWidth;
+            beam.transform.localScale = horiz
+                ? new Vector3(len, 1f, wid)
+                : new Vector3(wid, 1f, len);
+        }
+
+        // === 애니메이션 전체 3.15초 동안 이동 금지 유지 ===
+        float totalAnim = 3.15f;
+        float remain = Mathf.Max(0f, totalAnim - totalChargeTime);
+        yield return new WaitForSeconds(remain);
+
+        _isExploding = false;
     }
+
+
 
     // ===== Phase 2 =====
     float _p2NextBasic;
@@ -350,7 +454,7 @@ public class BossAI : MonoBehaviour, IDamageable
     IEnumerator P2_Slam()
     {
         var p2 = config.phase2;
-        _anim.SetTrigger(config.animTriggerSkill);
+        _anim.SetTrigger(config.animTriggerSkillA);
         yield return new WaitForSeconds(0.15f); // 내려찍기 타이밍
 
         float step = p2.slamSpan / (p2.slamCount - 1);
@@ -378,7 +482,7 @@ public class BossAI : MonoBehaviour, IDamageable
     {
         if (_shielding) yield break;
         var p2 = config.phase2;
-        _anim.SetTrigger(config.animTriggerSkill);
+        _anim.SetTrigger(config.animTriggerSkillB);
         _shielding = true;
 
         var shield = Instantiate(p2.shieldPrefab, transform);
@@ -399,7 +503,7 @@ public class BossAI : MonoBehaviour, IDamageable
     IEnumerator P2_Dash()
     {
         var p2 = config.phase2;
-        _anim.SetTrigger(config.animTriggerSkill);
+        _anim.SetTrigger(config.animTriggerSkillC);
 
         // 프리뷰
         var preview = Instantiate(p2.dashPreviewPrefab, transform.position, Quaternion.identity);
