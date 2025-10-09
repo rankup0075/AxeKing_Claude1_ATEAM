@@ -21,6 +21,7 @@ public class PlayerHealth : MonoBehaviour
     public void TakeDamage(int damage)
     {
         currentHealth = Mathf.Max(0, currentHealth - damage);
+        Debug.Log($"[PlayerHealth] Player took {damage} damage ¡æ HP {CurrentHealth}/{MaxHealth}");
         UIManager.Instance.UpdateHealthBar(currentHealth, maxHealth);
 
         // [NEW] HUDµµ °»½Å

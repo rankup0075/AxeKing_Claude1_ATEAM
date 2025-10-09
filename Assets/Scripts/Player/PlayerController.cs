@@ -73,6 +73,9 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
+        //if (!canControl || !canMove || isStunned || isAttacking)
+        //    Debug.Log($"Input lock -> canControl:{canControl}, canMove:{canMove}, isStunned:{isStunned}, isAttacking:{isAttacking}");
+
         if (!canControl)
         {
             StopHorizontalMotion();
@@ -210,7 +213,14 @@ public class PlayerController : MonoBehaviour
             EnemyHealth e = enemy.GetComponent<EnemyHealth>();
             if (e != null)
                 e.TakeDamage(attackDamage);
+
+            if (enemy.TryGetComponent<BossHealth>(out var b))
+            {
+                b.TakeDamage(attackDamage);
+                continue;
+            }
         }
+
     }
 
     // ================= Damage & Death =================

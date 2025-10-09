@@ -1,37 +1,37 @@
+// Projectile.cs
 using UnityEngine;
 
-[RequireComponent(typeof(Collider))]
+[RequireComponent(typeof(Rigidbody), typeof(Collider))]
 public class Projectile : MonoBehaviour
 {
-    public float speed = 14f;
-    public float life = 5f;
-    public float damage = 10f;
-    public LayerMask hitLayers;
-    public bool destroyOnAnyHit = true;
-    public GameObject hitVfx;
+    public float speed = 12f;
+    public float lifeTime = 6f;
+    public int damage = 10;
+    public LayerMask hitMask; // Player, Wall µî
 
-    Rigidbody rb;
-    Vector3 _dir;
+    public GameObject hitVFX;
+    private Rigidbody rb;
+    private bool launched;
 
-    public void Fire(Vector3 dir)
+    public void Launch(Vector3 dir)
     {
-        _dir = dir.normalized;
-        Destroy(gameObject, life);
+        if (launched) return;
+        launched = true;
+        rb = GetComponent<Rigidbody>();
+        rb.useGravity = false;
+        rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+        rb.linearVelocity = dir.normalized * speed;
+        Destroy(gameObject, lifeTime);
     }
 
-    void Update()
+    void OnTriggerEnter(Collider other)
     {
-        transform.position += _dir * speed * Time.deltaTime;
-    }
+        if (((1 << other.gameObject.layer) & hitMask) == 0) return;
 
-    private void OnCollisionEnter(Collision col)
-    {
-        if (((1 << col.gameObject.layer) & hitLayers.value) == 0) return;
+        if (other.TryGetComponent<PlayerHealth>(out var ph))
+            ph.TakeDamage(damage);
 
-        var d = col.collider.GetComponentInParent<IDamageable>();
-        if (d != null) d.ApplyDamage(damage);
-
-        if (hitVfx) Instantiate(hitVfx, transform.position, Quaternion.identity);
-        if (destroyOnAnyHit) Destroy(gameObject);
+        if (hitVFX) Instantiate(hitVFX, transform.position, Quaternion.identity);
+        Destroy(gameObject);
     }
 }
