@@ -53,8 +53,8 @@ public class ScreenLaser : MonoBehaviour
             box.size = new Vector3(thickness, worldWidth, 1f);
             box.center = Vector3.zero;
 
-            if (preview) preview.localScale = new Vector3(thickness, 1f, worldWidth);
-            if (beam) beam.localScale = new Vector3(thickness, 1f, worldWidth);
+            if (preview) preview.localScale = new Vector3(thickness, worldWidth ,1f );
+            if (beam) beam.localScale = new Vector3(thickness, worldWidth, 1f );
         }
     }
 

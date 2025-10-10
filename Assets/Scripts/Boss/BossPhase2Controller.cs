@@ -1,4 +1,4 @@
-// BossPhase2Controller.cs
+// BossPhase2Controller.cs (2.5D 전역 장판 버전)
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
@@ -6,133 +6,201 @@ using System.Collections.Generic;
 public class BossPhase2Controller : MonoBehaviour
 {
     [Header("Refs")]
-    public BossHealth health;         // 페이즈2 전용 HP(별도)
+    public BossHealth health;
+    public Animator anim;
     public Transform player;
-    public Camera mainCam;
 
     [Header("Basic: 수직 스크린 레이저(무애니메이션)")]
-    public ScreenLaser laserVPrefab;  // axis=Vertical, continuous=false
+    public ScreenLaser laserVPrefab;
     public float trackXTime_Basic = 2f;
     public float waitAfterPreview_Basic = 1f;
     public float basicCooldown = 2.5f;
 
-    [Header("Skill: 눈에서 빔 2개(지속)")]
-    public ScreenLaser eyeLaserPrefab; // continuous=true로 사용
-    public Transform leftEye;
-    public Transform rightEye;
-    public float eyeTrackTime = 2f;
+    [Header("Laser Settings")]
+    public float laserWorldWidth = 60f;
+    private ScreenLaser currentLaser;
+
+    [Header("Skill: Area Pulse (전역 원형 폭발)")]
+    public CylindricalExplosion cylindricalExplosionPrefab;
+    public int pulseWaveCount = 3;
+    public float pulseInterval = 1.0f;
+    public Vector2 mapHalfSizeX = new Vector2(-20f, 20f); // X축 범위
+    public Vector2 pulseCountRange = new Vector2(5, 8);
+    public float previewTime = 1.0f;
 
     [Header("Skill: 땅 쓸기")]
-    public Transform sweepHand;                   // 손 오브젝트
+    public Transform sweepHand;
     public Transform sweepStart;
     public Transform sweepEnd;
     public float sweepPreviewTime = 0.5f;
-    public float sweepDuration = 0.25f;           // 빠르게
+    public float sweepDuration = 0.25f;
     public GameObject sweepPreviewVFX;
-    public GameObject sweepHitboxPrefab;          // BoxCollider + DamageOnTrigger(continuous=false)
+    public GameObject sweepHitboxPrefab;
 
     [Header("Skill: 적 소환")]
     public List<GameObject> enemyPrefabs;
     public int spawnCount = 4;
     public Vector2 spawnAreaMin = new Vector2(-8, 0);
     public Vector2 spawnAreaMax = new Vector2(8, 0);
-    public GameObject spawnMarkerPrefab;          // 1초 표시
+    public GameObject spawnMarkerPrefab;
 
     [Header("AI Timings")]
     public float skillInterval = 4f;
 
+    [Header("AI Decision")]
+    public float attackDecisionInterval = 1.5f;
+    [Range(0f, 1f)] public float attackProbability = 0.4f;
+
+    [Header("Attack Probabilities")]
+    [Range(0f, 1f)] public float pBasic = 0.5f;
+    [Range(0f, 1f)] public float pAreaPulse = 0.3f;
+    [Range(0f, 1f)] public float pGroundSweep = 0.15f;
+    [Range(0f, 1f)] public float pSummon = 0.05f;
+
+    bool canAct = true;
+    bool isBusy = false;
     bool running;
+    bool allowLaserTracking = false;
 
     public void BeginPhase()
     {
+        if (!gameObject.activeSelf)
+            gameObject.SetActive(true);
         if (!player) player = PlayerController.Instance?.transform;
         running = true;
         StartCoroutine(AILoop());
     }
 
+    void LateUpdate() { }
+
     IEnumerator AILoop()
     {
-        float lastBasic = -999f;
+        float total;
         while (running)
         {
-            if (Time.time - lastBasic >= basicCooldown)
+            if (isBusy || !player)
             {
-                lastBasic = Time.time;
-                yield return StartCoroutine(BasicVerticalLaser());
+                yield return null;
+                continue;
             }
 
-            // 스킬 로테이션: 눈빔 → 쓸기 → 소환
-            yield return StartCoroutine(Skill_EyeBeams());
-            yield return new WaitForSeconds(skillInterval);
+            yield return new WaitForSeconds(attackDecisionInterval);
 
-            yield return StartCoroutine(Skill_GroundSweep());
-            yield return new WaitForSeconds(skillInterval);
+            if (Random.value > attackProbability)
+                continue;
 
-            yield return StartCoroutine(Skill_SummonAdds());
-            yield return new WaitForSeconds(skillInterval);
+            total = pBasic + pAreaPulse + pGroundSweep + pSummon;
+            if (total <= 0.001f) continue;
+            float r = Random.value * total;
+
+            if (r < pBasic)
+                yield return StartCoroutine(BasicVerticalLaser());
+            else if (r < pBasic + pAreaPulse)
+                yield return StartCoroutine(Skill_AreaPulse());
+            else if (r < pBasic + pAreaPulse + pGroundSweep)
+                yield return StartCoroutine(Skill_GroundSweep());
+            else
+                yield return StartCoroutine(Skill_SummonAdds());
         }
     }
 
     IEnumerator BasicVerticalLaser()
     {
-        // X 2초 추적 → 1초 뒤 수직 레이저 단발
-        float t = 0f;
-        float targetX = transform.position.x;
-        while (t < trackXTime_Basic)
+        isBusy = true;
+        canAct = false;
+
+        float x = player ? player.position.x : transform.position.x;
+        currentLaser = Instantiate(laserVPrefab, new Vector3(x, 0, 0), Quaternion.identity);
+        currentLaser.axis = ScreenLaser.Axis.Vertical;
+        currentLaser.continuous = false;
+        currentLaser.SetupToCameraBounds(laserWorldWidth);
+
+        allowLaserTracking = true;
+
+        if (anim) anim.SetTrigger("Basic");
+
+        while (allowLaserTracking)
         {
-            if (player) targetX = player.position.x;
-            t += Time.deltaTime;
+            if (player && currentLaser)
+            {
+                Vector3 pos = currentLaser.transform.position;
+                pos.x = player.position.x;
+                currentLaser.transform.position = pos;
+            }
             yield return null;
         }
-        yield return new WaitForSeconds(waitAfterPreview_Basic);
 
-        var laser = Instantiate(laserVPrefab, new Vector3(targetX, 0, 0), Quaternion.identity);
-        laser.axis = ScreenLaser.Axis.Vertical;
-        laser.continuous = false;
-        laser.SetupToCameraBounds();
-        yield return laser.FireSequence();
+        while (!canAct)
+            yield return null;
+
+        isBusy = false;
     }
 
-    IEnumerator Skill_EyeBeams()
+    public void StartLaserPreview()
     {
-        // 두 레이저가 2초간 플레이어를 추적. 지속 데미지.
-        ScreenLaser l = Instantiate(eyeLaserPrefab, leftEye.position, Quaternion.identity);
-        ScreenLaser r = Instantiate(eyeLaserPrefab, rightEye.position, Quaternion.identity);
-        l.axis = ScreenLaser.Axis.Vertical; l.continuous = true;
-        r.axis = ScreenLaser.Axis.Vertical; r.continuous = true;
-        l.SetupToCameraBounds();
-        r.SetupToCameraBounds();
+        if (currentLaser && currentLaser.preview)
+            currentLaser.preview.gameObject.SetActive(true);
+        allowLaserTracking = true;
+    }
 
-        // 프리뷰없이 즉시 발사 상태로 만들고 2초 동안 Y/X를 플레이어에 맞춰 이동
-        StartCoroutine(l.FireSequence());
-        StartCoroutine(r.FireSequence());
+    public void HideLaserPreview()
+    {
+        if (currentLaser && currentLaser.preview)
+            currentLaser.preview.gameObject.SetActive(false);
+        allowLaserTracking = false;
+    }
 
-        float t = 0f;
-        while (t < eyeTrackTime)
+    public void FireLaser()
+    {
+        if (!currentLaser) return;
+        StartCoroutine(currentLaser.FireSequence());
+    }
+
+    public void EndBasic()
+    {
+        canAct = true;
+    }
+
+    // 2.5D 전역 X축 장판 패턴
+    IEnumerator Skill_AreaPulse()
+    {
+        isBusy = true;
+        canAct = false;
+        if (anim) anim.SetTrigger("AreaPulse");
+
+        for (int wave = 0; wave < pulseWaveCount; wave++)
         {
-            if (player)
+            int count = Random.Range((int)pulseCountRange.x, (int)pulseCountRange.y + 1);
+
+            for (int i = 0; i < count; i++)
             {
-                l.transform.position = new Vector3(player.position.x - 1.2f, l.transform.position.y, l.transform.position.z);
-                r.transform.position = new Vector3(player.position.x + 1.2f, r.transform.position.y, r.transform.position.z);
+                float xPos = Random.Range(mapHalfSizeX.x, mapHalfSizeX.y);
+                Vector3 pos = new Vector3(xPos, 0f, 0f);
+
+                var fx = Instantiate(cylindricalExplosionPrefab, pos, Quaternion.identity);
+                fx.ConfigureShape();
+                StartCoroutine(fx.ShowThenExplode(previewTime));
             }
-            t += Time.deltaTime;
-            yield return null;
+
+            yield return new WaitForSeconds(pulseInterval);
         }
+
+        yield return new WaitForSeconds(1.0f);
+        canAct = true;
+        isBusy = false;
     }
 
     IEnumerator Skill_GroundSweep()
     {
-        // 프리뷰 표시
+        isBusy = true;
         var pv = Instantiate(sweepPreviewVFX, Vector3.zero, Quaternion.identity);
-        pv.transform.position = new Vector3(sweepStart.position.x, sweepStart.position.y, sweepStart.position.z);
+        pv.transform.position = sweepStart.position;
         Destroy(pv, sweepPreviewTime + sweepDuration + 0.5f);
         yield return new WaitForSeconds(sweepPreviewTime);
 
-        // 히트박스 1회 스윕
         var hit = Instantiate(sweepHitboxPrefab, sweepStart.position, Quaternion.identity);
-        var box = hit.GetComponent<BoxCollider>();
-        var dmg = hit.GetComponent<DamageOnTrigger>(); // continuous=false, 단발
-        dmg.destroyOnHit = false; // 여러 대상에 1회씩
+        var dmg = hit.GetComponent<DamageOnTrigger>();
+        dmg.destroyOnHit = false;
 
         float t = 0f;
         while (t < sweepDuration)
@@ -141,12 +209,14 @@ public class BossPhase2Controller : MonoBehaviour
             t += Time.deltaTime;
             yield return null;
         }
+
         Destroy(hit);
+        isBusy = false;
     }
 
     IEnumerator Skill_SummonAdds()
     {
-        // 마커 1초 → 적 소환
+        isBusy = true;
         var markers = new List<GameObject>();
         for (int i = 0; i < spawnCount; i++)
         {
@@ -165,5 +235,7 @@ public class BossPhase2Controller : MonoBehaviour
             var prefab = enemyPrefabs[Random.Range(0, enemyPrefabs.Count)];
             Instantiate(prefab, pos, Quaternion.identity);
         }
+
+        isBusy = false;
     }
 }

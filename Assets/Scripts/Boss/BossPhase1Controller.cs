@@ -352,6 +352,8 @@ public class BossPhase1Controller : MonoBehaviour
 
     void HandlePhaseChange()
     {
+        DestroyAllSkillObjects();
+
         // 1페이즈 외형 종료
         if (anim) anim.SetTrigger("DiePhase");
 
@@ -365,4 +367,24 @@ public class BossPhase1Controller : MonoBehaviour
         // 1페이즈 모델 비활성
         gameObject.SetActive(false);
     }
+
+    void DestroyAllSkillObjects()
+{
+    // 폭발 프리뷰 및 폭발 오브젝트 제거
+    foreach (var exp in FindObjectsByType<CylindricalExplosion>(FindObjectsSortMode.None))
+        Destroy(exp.gameObject);
+
+    // 레이저 제거
+    foreach (var laser in FindObjectsByType<ScreenLaser>(FindObjectsSortMode.None))
+        Destroy(laser.gameObject);
+
+    // 스킬 B 투사체 제거
+    foreach (var proj in FindObjectsByType<Projectile>(FindObjectsSortMode.None))
+    {
+        if (proj.CompareTag("EnemyProjectile"))
+            Destroy(proj.gameObject);
+    }
+}
+
+
 }
