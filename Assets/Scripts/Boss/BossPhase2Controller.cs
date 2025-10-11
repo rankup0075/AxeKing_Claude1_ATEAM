@@ -10,6 +10,9 @@ public class BossPhase2Controller : MonoBehaviour
     public Animator anim;
     public Transform player;
 
+    [SerializeField] Transform neckBone;
+    public Quaternion targetNeckRotation = Quaternion.Euler(20f, -1.466f, 1.016f);
+
     [Header("Basic: 수직 스크린 레이저(무애니메이션)")]
     public ScreenLaser laserVPrefab;
     public float trackXTime_Basic = 2f;
@@ -29,20 +32,19 @@ public class BossPhase2Controller : MonoBehaviour
     public float previewTime = 1.0f;
 
     [Header("Skill: 땅 쓸기")]
-    public Transform sweepHand;
-    public Transform sweepStart;
-    public Transform sweepEnd;
     public float sweepPreviewTime = 0.5f;
     public float sweepDuration = 0.25f;
     public GameObject sweepPreviewVFX;
     public GameObject sweepHitboxPrefab;
 
-    [Header("Skill: 적 소환")]
+    [Header("Skill: 소환")]
     public List<GameObject> enemyPrefabs;
     public int spawnCount = 4;
     public Vector2 spawnAreaMin = new Vector2(-8, 0);
     public Vector2 spawnAreaMax = new Vector2(8, 0);
     public GameObject spawnMarkerPrefab;
+    public float summonPreviewTime = 1.0f;   // 프리뷰 유지 시간
+    public float summonDelay = 0.5f;   // 프리뷰 사라진 후 소환까지 대기
 
     [Header("AI Timings")]
     public float skillInterval = 4f;
@@ -71,7 +73,11 @@ public class BossPhase2Controller : MonoBehaviour
         StartCoroutine(AILoop());
     }
 
-    void LateUpdate() { }
+    void LateUpdate()
+    {
+        if (neckBone)
+            neckBone.localRotation = targetNeckRotation;
+    }
 
     IEnumerator AILoop()
     {
@@ -193,49 +199,102 @@ public class BossPhase2Controller : MonoBehaviour
     IEnumerator Skill_GroundSweep()
     {
         isBusy = true;
-        var pv = Instantiate(sweepPreviewVFX, Vector3.zero, Quaternion.identity);
-        pv.transform.position = sweepStart.position;
-        Destroy(pv, sweepPreviewTime + sweepDuration + 0.5f);
-        yield return new WaitForSeconds(sweepPreviewTime);
+        canAct = false;
 
-        var hit = Instantiate(sweepHitboxPrefab, sweepStart.position, Quaternion.identity);
-        var dmg = hit.GetComponent<DamageOnTrigger>();
-        dmg.destroyOnHit = false;
-
-        float t = 0f;
-        while (t < sweepDuration)
+        // 1. 프리뷰 생성
+        GameObject pv = null;
+        if (sweepPreviewVFX)
         {
-            hit.transform.position = Vector3.Lerp(sweepStart.position, sweepEnd.position, t / sweepDuration);
-            t += Time.deltaTime;
-            yield return null;
+            pv = Instantiate(sweepPreviewVFX, Vector3.zero, Quaternion.identity);
+            pv.transform.localScale = new Vector3(80f, 2f, 1f); // 맵 폭 기준
         }
 
-        Destroy(hit);
+        // 2. 프리뷰 유지
+        yield return new WaitForSeconds(sweepPreviewTime);
+
+        // 3. 프리뷰 제거
+        if (pv)
+        {
+            Destroy(pv); // 즉시 삭제
+            pv = null;
+        }
+
+        // 4. 애니메이션 재생
+        if (anim) anim.SetTrigger("GroundSweep");
+
+        // 애니메이션 이벤트 GroundSweep_Hit()에서 타격 실행
+
+        yield return new WaitForSeconds(sweepDuration + 0.5f);
+
+        canAct = true;
         isBusy = false;
     }
+    // 애니메이션 이벤트용
+    public void GroundSweep_Hit()
+    {
+        StartCoroutine(SpawnSweepHitbox());
+    }
+
+    IEnumerator SpawnSweepHitbox()
+    {
+        // 히트박스 생성 (맵 전체 폭)
+        var hit = Instantiate(sweepHitboxPrefab, Vector3.zero, Quaternion.identity);
+
+        // 공격 범위 세팅
+        var col = hit.GetComponent<BoxCollider>();
+        col.isTrigger = true;
+        col.size = new Vector3(80f, 2f, 1f);     // X=맵 폭, Y=판정 높이
+        col.center = new Vector3(0, 1f, 0);    // Y=중심 높이 (점프로 회피 가능)
+
+        // 일정 시간 유지 후 파괴
+        yield return new WaitForSeconds(sweepDuration);
+        Destroy(hit);
+    }
+
 
     IEnumerator Skill_SummonAdds()
     {
         isBusy = true;
+        canAct = false;
+
+        // 1. 프리뷰 생성
         var markers = new List<GameObject>();
         for (int i = 0; i < spawnCount; i++)
         {
-            Vector3 pos = new Vector3(Random.Range(spawnAreaMin.x, spawnAreaMax.x),
-                                      spawnAreaMin.y, 0f);
+            Vector3 pos = new Vector3(
+                Random.Range(spawnAreaMin.x, spawnAreaMax.x),
+                spawnAreaMin.y,
+                0f
+            );
+
             var mk = Instantiate(spawnMarkerPrefab, pos, Quaternion.identity);
             markers.Add(mk);
         }
-        yield return new WaitForSeconds(1f);
 
-        for (int i = 0; i < markers.Count; i++)
-        {
-            var mk = markers[i];
-            Vector3 pos = mk.transform.position;
+        // 2. 프리뷰 유지
+        yield return new WaitForSeconds(summonPreviewTime);
+
+        // 3. 프리뷰 제거
+        foreach (var mk in markers)
             Destroy(mk);
+
+        // 4. 애니메이션 재생
+        if (anim) anim.SetTrigger("Summon");
+        yield return new WaitForSeconds(summonDelay);
+
+        // 5. 실제 적 소환
+        for (int i = 0; i < spawnCount; i++)
+        {
+            Vector3 pos = new Vector3(
+                Random.Range(spawnAreaMin.x, spawnAreaMax.x),
+                spawnAreaMin.y,
+                0f
+            );
             var prefab = enemyPrefabs[Random.Range(0, enemyPrefabs.Count)];
             Instantiate(prefab, pos, Quaternion.identity);
         }
 
+        canAct = true;
         isBusy = false;
     }
 }
