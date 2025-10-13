@@ -5754,17 +5754,17 @@ MonoBehaviour:
     price: 500
     potionType: 0
     description: "\uCCB4\uB825 30 \uD68C\uBCF5"
-    icon: {fileID: 0}
+    icon: {fileID: 21300000, guid: 3e72aab37a1237447b29c51b32c2c8c2, type: 3}
   - itemName: "\uC911\uD615 \uD3EC\uC158"
     price: 1500
     potionType: 1
     description: "\uCCB4\uB825 50 \uD68C\uBCF5"
-    icon: {fileID: 0}
+    icon: {fileID: 21300000, guid: 1a83daeb55a863842b5113433e81dc6e, type: 3}
   - itemName: "\uB300\uD615 \uD3EC\uC158"
     price: 3000
     potionType: 2
     description: "\uCCB4\uB825 \uC644\uC804 \uD68C\uBCF5"
-    icon: {fileID: 0}
+    icon: {fileID: 21300000, guid: 7e00ff3ad29821645a13544e5075929e, type: 3}
 --- !u!1 &713063229
 GameObject:
   m_ObjectHideFlags: 0

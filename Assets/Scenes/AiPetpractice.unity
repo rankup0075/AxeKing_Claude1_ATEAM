@@ -400,6 +400,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1967942212178542298, guid: dfa4d543094b4ea4c8ccfd501121a1f2, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 7e00ff3ad29821645a13544e5075929e, type: 3}
     - target: {fileID: 2081040871715694356, guid: dfa4d543094b4ea4c8ccfd501121a1f2, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -448,6 +452,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4320084943044923504, guid: dfa4d543094b4ea4c8ccfd501121a1f2, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 1a83daeb55a863842b5113433e81dc6e, type: 3}
     - target: {fileID: 4447026241493166730, guid: dfa4d543094b4ea4c8ccfd501121a1f2, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -488,6 +496,10 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5176956726706772393, guid: dfa4d543094b4ea4c8ccfd501121a1f2, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 3e72aab37a1237447b29c51b32c2c8c2, type: 3}
     - target: {fileID: 6401907635541774082, guid: dfa4d543094b4ea4c8ccfd501121a1f2, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -1289,6 +1301,7 @@ MonoBehaviour:
   hudSmallPotionText: {fileID: 0}
   hudMediumPotionText: {fileID: 0}
   hudLargePotionText: {fileID: 0}
+  saveSelectUI: {fileID: 0}
   interactionPrompt: {fileID: 0}
   interactionText: {fileID: 0}
   potionShopPanel: {fileID: 0}

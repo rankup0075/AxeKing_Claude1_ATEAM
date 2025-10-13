@@ -80,7 +80,7 @@ public class PotionShopUI : MonoBehaviour
             ui.transform.Find("DescriptionText").GetComponent<TextMeshProUGUI>().text = potion.description;
 
             if (potion.icon != null)
-                ui.transform.Find("Icon").GetComponent<Image>().sprite = potion.icon;
+                ui.transform.Find("PotionIcon").GetComponent<Image>().sprite = potion.icon;
 
             potionUIObjects[potion.potionType] = ui;
         }
