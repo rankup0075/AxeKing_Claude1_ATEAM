@@ -53,7 +53,11 @@ public class WarehouseUI : MonoBehaviour
         equipButton.interactable = false;
         unequipButton.interactable = false;
     }
-
+    public void RefreshAll()
+    {
+        ShowItems(ShopUI.ItemType.Weapon);
+        ShowItems(ShopUI.ItemType.Armor);
+    }
     void RefreshStats()
     {
         var pc = playerInventory.GetComponent<PlayerController>();

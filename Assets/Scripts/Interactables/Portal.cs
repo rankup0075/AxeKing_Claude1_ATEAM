@@ -44,6 +44,7 @@ public class Portal : MonoBehaviour
         PotionShop,
         EquipmentShop,
         WareHouseChest,
+        SaveUIEntryPortal,
         RoundTransition,
         StageClear
     }
@@ -110,6 +111,11 @@ public class Portal : MonoBehaviour
             case PortalType.EquipmentShop:
                 if (equipmentShopUI != null) equipmentShopUI.OpenShop();
                 else Debug.LogWarning("[Portal] EquipmentShopUI 미연결");
+                busy = false;
+                break;
+
+            case PortalType.SaveUIEntryPortal:
+                UIManager.Instance?.OpenSaveSelectUI(true); // true = 저장모드
                 busy = false;
                 break;
 

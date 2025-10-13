@@ -88,7 +88,7 @@ public class PotionShopUI : MonoBehaviour
         UpdatePotionItemUI();
     }
 
-    void UpdatePotionItemUI()
+    public void UpdatePotionItemUI()
     {
         foreach (var potion in shopPotions)
         {

@@ -34,6 +34,8 @@ public class UIManager : MonoBehaviour
     public TextMeshProUGUI hudMediumPotionText;
     public TextMeshProUGUI hudLargePotionText;
 
+    [Header("Save/Load")]
+    public SaveSelectUI saveSelectUI;
 
     [Header("Interaction")]
     public GameObject interactionPrompt;
@@ -110,6 +112,11 @@ public class UIManager : MonoBehaviour
             if (inventoryPanel != null && inventoryPanel.activeSelf)
             {
                 CloseWareHouseUI();
+                return;
+            }
+            if (saveSelectUI != null && saveSelectUI.gameObject.activeSelf)
+            {
+                saveSelectUI.CloseSelf();
                 return;
             }
 
@@ -204,11 +211,7 @@ public class UIManager : MonoBehaviour
     public void ReturnToMainMenu()
     {
         // === 자동 저장 ===
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.SavePlayerData(); // 기존 PlayerPrefs
-            SaveLoadManager.Instance?.SaveGame();  // [추가] JSON 저장
-        }
+        SaveLoadManager.Instance?.AutoSave();
 
         var player = GameObject.FindWithTag("Player");
         if (player != null)
@@ -224,11 +227,7 @@ public class UIManager : MonoBehaviour
     public void QuitGame()
     {
         // === 자동 저장 ===
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.SavePlayerData(); // 기존 PlayerPrefs
-            SaveLoadManager.Instance?.SaveGame();  // [추가] JSON 저장
-        }
+        SaveLoadManager.Instance?.AutoSave();
 
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
@@ -283,6 +282,8 @@ public class UIManager : MonoBehaviour
 
     public void OpenWareHouseUI()
     {
+        PlayerController.Instance?.StopImmediately();
+
         if (inventoryPanel != null)
         {
             // BUGFIX: 장비상점이 아니라 인벤토리 패널을 연다.
@@ -301,6 +302,30 @@ public class UIManager : MonoBehaviour
         ResetCameraTarget();
         RestorePlayerControl();
     }
+
+    public void OpenSaveSelectUI(bool saveMode)
+    {
+        // 인스펙터로 연결되어 있지 않으면 Resources에서 로드
+        if (saveSelectUI == null)
+        {
+            var prefab = Resources.Load<GameObject>("UI/SlotSelectPanel");
+            if (prefab == null) { Debug.LogWarning("[UIManager] SlotSelectPanel 프리팹 없음"); return; }
+            var inst = Instantiate(prefab);
+            saveSelectUI = inst.GetComponentInChildren<SaveSelectUI>(true);
+        }
+
+        // 최상위 Canvas에 부착 정렬
+        var targetCanvas = FindObjectsByType<Canvas>(FindObjectsSortMode.None)
+            .Where(c => c.isActiveAndEnabled && c.gameObject.activeInHierarchy)
+            .OrderByDescending(c => c.sortingOrder)
+            .FirstOrDefault();
+        if (targetCanvas != null)
+            saveSelectUI.transform.root.SetParent(targetCanvas.transform, false);
+
+        saveSelectUI.Setup(saveMode);
+    }
+
+
 
     // ======================
     // Quest / Stage
@@ -418,17 +443,6 @@ public class UIManager : MonoBehaviour
         RestorePlayerControl();
     }
 
-
-    //void RefreshStageSelectUI()
-    //{
-    //    // 여기서 StageManager.Instance.regions 데이터를 읽어서
-    //    // 버튼 동적 생성하면 됨
-    //    //Debug.Log("[UIManager] Stage Select UI 갱신");
-    //}
-
-    // ======================
-    // Health / Gold / Potion UI
-    // ======================
     public void UpdateHealthBar(int current, int max)
     {
         if (healthBar != null)
@@ -456,11 +470,38 @@ public class UIManager : MonoBehaviour
     // ======================
     public void InitPlayerHUD()
     {
-        if (playerHUD == null) return;
-        UpdateHUDGold(GameManager.Instance?.Gold ?? 0);
-        UpdateHUDHealth(100, 100);
-        UpdateHUDPotions(0, 0, 0);
+        var hud = GameObject.Find("PlayerHUDCanvas(Clone)");
+        if (hud == null) hud = GameObject.Find("PlayerHUDCanvas");
+        if (hud == null)
+        {
+            Debug.LogWarning("[UIManager] PlayerHUDCanvas not found.");
+            return;
+        }
+
+        // 텍스트 연결
+        var texts = hud.GetComponentsInChildren<TextMeshProUGUI>(true);
+        foreach (var t in texts)
+        {
+            switch (t.name)
+            {
+                case "GoldText": hudGoldText = t; break;
+                case "SmallPotionCountText": hudSmallPotionText = t; break;
+                case "MiddlePotionCountText": hudMediumPotionText = t; break;
+                case "LargePotionCountText": hudLargePotionText = t; break;
+            }
+        }
+
+        // 체력 슬라이더 연결
+        var sliders = hud.GetComponentsInChildren<Slider>(true);
+        foreach (var s in sliders)
+        {
+            if (s.name == "HP") hudHealthBar = s;
+        }
+
+        Debug.Log("[UIManager] PlayerHUD 연결 완료");
     }
+
+
 
     public void UpdateHUDGold(long gold)
     {

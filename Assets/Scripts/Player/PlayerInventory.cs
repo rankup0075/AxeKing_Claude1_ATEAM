@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 public class PlayerInventory : MonoBehaviour
@@ -26,7 +27,19 @@ public class PlayerInventory : MonoBehaviour
         playerHealth = GetComponent<PlayerHealth>();
         playerController = GetComponent<PlayerController>();
 
-        InitializeItems();
+        // === 세이브 존재 여부 확인 ===
+        bool hasSave =
+            File.Exists(Path.Combine(Application.persistentDataPath, "save_auto.json")) ||
+            File.Exists(Path.Combine(Application.persistentDataPath, "save_slot1.json")) ||
+            File.Exists(Path.Combine(Application.persistentDataPath, "save_slot2.json")) ||
+            File.Exists(Path.Combine(Application.persistentDataPath, "save_slot3.json"));
+
+        if (!hasSave)
+        {
+            // 세이브 없을 때만 기본 아이템 목록 초기화
+            InitializeItems();
+        }
+
         UpdateUI();
     }
 
