@@ -101,6 +101,21 @@ public class PlayerController : MonoBehaviour
 
         animator.SetBool(groundedHash, isGrounded);
         UpdateAnimatorMoveBlend();
+
+        if (Input.GetKeyDown(KeyCode.F1))
+            Debug.Log($"Move:{canMove},Atk:{isAttacking},Ground:{isGrounded},Jump:{IsJumping},Stun:{isStunned},Vel:{rb.linearVelocity}");
+
+        // failsafe: 공중 공격 중 착지했을 때만 해제
+        if (isGrounded && isAttacking && IsJumping)
+        {
+            isAttacking = false;
+            animator.ResetTrigger(attackHash);
+            animator.ResetTrigger(airAttackHash);
+            animator.SetBool("IsGrounded", true);
+            animator.Play("Idle");
+            IsJumping = false;
+        }
+
     }
 
     // ================= Movement =================
@@ -259,6 +274,13 @@ public class PlayerController : MonoBehaviour
             isGrounded = true;
             IsJumping = false;
             canAirAttack = true;
+
+            if (isAttacking)  // 착지 시 공격 상태 고정 방지
+            {
+                isAttacking = false;
+                animator.ResetTrigger(attackHash);
+                animator.ResetTrigger(airAttackHash);
+            }
         }
     }
 

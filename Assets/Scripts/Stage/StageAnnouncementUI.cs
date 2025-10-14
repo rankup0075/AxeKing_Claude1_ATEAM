@@ -101,6 +101,8 @@ public class StageAnnouncementUI : MonoBehaviour
             default:
                 break;
         }
+
+        //StopAllCoroutines();
     }
 
 
@@ -109,12 +111,15 @@ public class StageAnnouncementUI : MonoBehaviour
     // ====== 수동 표시 가능 ======
     public void ShowStageText(int stageNumber, int roundNumber)
     {
+       
         string label = $"스테이지 {stageNumber}-{roundNumber}"; // 수정
         StartCoroutine(ShowRoutine(label));
     }
 
     public void ShowStageText(string label)
     {
+        StopAllCoroutines();                  // [추가] 기존 페이드 루틴 중단
+        canvasGroup.alpha = 0f;               // [추가] 완전히 숨긴 상태에서 시작
         StartCoroutine(ShowRoutine(label)); // 수정: “Stage ” 제거
     }
 

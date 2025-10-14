@@ -6115,7 +6115,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Portal
   targetScene: BeforeBoss
   portalID: Before_Boss
-  portalType: 7
+  portalType: 8
   isUnlocked: 1
   portalDirection: 1
   potionShopUI: {fileID: 0}

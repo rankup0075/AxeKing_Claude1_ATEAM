@@ -44,6 +44,7 @@ public class EquipmentEntry
     public string itemName;
     public int type;        // ShopUI.ItemType을 int로 저장
     public int statBonus;
+    public string iconName;
 }
 
 [Serializable]

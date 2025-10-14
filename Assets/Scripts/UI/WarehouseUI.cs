@@ -203,29 +203,32 @@ public class WarehouseUI : MonoBehaviour
     {
         if (selectedItem == null) return;
 
-        if (currentTab == ShopUI.ItemType.Weapon && playerInventory.currentWeapon != null && playerInventory.currentWeapon.EquipmentitemName == selectedItem.EquipmentitemName)
+        var visual = FindFirstObjectByType<PlayerVisual>();
+
+        if (selectedItem.Equipmenttype == ShopUI.ItemType.Weapon &&
+            playerInventory.currentWeapon != null &&
+            playerInventory.currentWeapon.EquipmentitemName == selectedItem.EquipmentitemName)
         {
             playerInventory.EquipItem(null, ShopUI.ItemType.Weapon);
-            var visual = FindFirstObjectByType<PlayerVisual>();
             if (visual != null) visual.ApplyWeapon(null);
             Debug.Log($"[Warehouse] {selectedItem.EquipmentitemName} 무기 해제 완료");
         }
-        else if (currentTab == ShopUI.ItemType.Armor && playerInventory.currentArmor != null && playerInventory.currentArmor.EquipmentitemName == selectedItem.EquipmentitemName)
+        else if (selectedItem.Equipmenttype == ShopUI.ItemType.Armor &&
+                 playerInventory.currentArmor != null &&
+                 playerInventory.currentArmor.EquipmentitemName == selectedItem.EquipmentitemName)
         {
             playerInventory.EquipItem(null, ShopUI.ItemType.Armor);
-            var visual = FindFirstObjectByType<PlayerVisual>();
             if (visual != null) visual.ApplyArmor(null);
             Debug.Log($"[Warehouse] {selectedItem.EquipmentitemName} 방어구 해제 완료");
         }
 
-
         selectedItem = null;
         RefreshEquippedPanel();
         ShowItems(currentTab);
-
         equipButton.interactable = false;
         unequipButton.interactable = false;
     }
+
 
     void RefreshEquippedPanel()
     {

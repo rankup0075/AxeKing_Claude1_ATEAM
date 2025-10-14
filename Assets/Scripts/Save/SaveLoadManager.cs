@@ -60,7 +60,8 @@ public class SaveLoadManager : MonoBehaviour
                 {
                     itemName = w.EquipmentitemName,
                     type = (int)w.Equipmenttype,
-                    statBonus = w.EquipmentstatBonus
+                    statBonus = w.EquipmentstatBonus,
+                    iconName = w.icon ? w.icon.name : null
                 });
 
             foreach (var a in inv.armorStorage)
@@ -68,7 +69,8 @@ public class SaveLoadManager : MonoBehaviour
                 {
                     itemName = a.EquipmentitemName,
                     type = (int)a.Equipmenttype,
-                    statBonus = a.EquipmentstatBonus
+                    statBonus = a.EquipmentstatBonus,
+                    iconName = a.icon ? a.icon.name : null
                 });
         }
         if (inv.currentWeapon != null)
@@ -76,14 +78,16 @@ public class SaveLoadManager : MonoBehaviour
             {
                 itemName = inv.currentWeapon.EquipmentitemName,
                 type = (int)inv.currentWeapon.Equipmenttype,
-                statBonus = inv.currentWeapon.EquipmentstatBonus
+                statBonus = inv.currentWeapon.EquipmentstatBonus,
+                iconName = inv.currentWeapon.icon ? inv.currentWeapon.icon.name : null
             };
         if (inv.currentArmor != null)
             data.player.equippedArmor = new EquipmentEntry
             {
                 itemName = inv.currentArmor.EquipmentitemName,
                 type = (int)inv.currentArmor.Equipmenttype,
-                statBonus = inv.currentArmor.EquipmentstatBonus
+                statBonus = inv.currentArmor.EquipmentstatBonus,
+                iconName = inv.currentArmor.icon ? inv.currentArmor.icon.name : null
             };
         else Debug.LogWarning("[Save] PlayerInventory를 찾지 못함");
 
@@ -189,7 +193,8 @@ public class SaveLoadManager : MonoBehaviour
                 {
                     EquipmentitemName = e.itemName,
                     Equipmenttype = (ShopUI.ItemType)e.type,
-                    EquipmentstatBonus = e.statBonus
+                    EquipmentstatBonus = e.statBonus,
+                    icon = string.IsNullOrEmpty(e.iconName) ? null : Resources.Load<Sprite>($"ItemIcon/Weapon/{e.iconName}") // 경로 맞게
                 });
 
             inv.armorStorage = new List<ItemEquipment>();
@@ -198,7 +203,8 @@ public class SaveLoadManager : MonoBehaviour
                 {
                     EquipmentitemName = e.itemName,
                     Equipmenttype = (ShopUI.ItemType)e.type,
-                    EquipmentstatBonus = e.statBonus
+                    EquipmentstatBonus = e.statBonus,
+                    icon = string.IsNullOrEmpty(e.iconName) ? null : Resources.Load<Sprite>($"ItemIcon/Armor/{e.iconName}") // 경로 맞게
                 });
 
             Debug.Log($"[Apply] 무기={inv.weaponStorage.Count}, 방어구={inv.armorStorage.Count}");
@@ -214,32 +220,34 @@ public class SaveLoadManager : MonoBehaviour
 
         if (data.player.equippedWeapon != null && !string.IsNullOrEmpty(data.player.equippedWeapon.itemName))
         {
+            var e = data.player.equippedWeapon;
             var weapon = new ItemEquipment
             {
-                EquipmentitemName = data.player.equippedWeapon.itemName,
-                Equipmenttype = (ShopUI.ItemType)data.player.equippedWeapon.type,
-                EquipmentstatBonus = data.player.equippedWeapon.statBonus
+                EquipmentitemName = e.itemName,
+                Equipmenttype = (ShopUI.ItemType)e.type,
+                EquipmentstatBonus = e.statBonus,
+                icon = string.IsNullOrEmpty(e.iconName)
+                    ? null
+                    : Resources.Load<Sprite>($"ItemIcon/Weapon/{e.iconName}")
             };
             inv.EquipItem(weapon, ShopUI.ItemType.Weapon);
-
-            var visual = FindFirstObjectByType<PlayerVisual>();
-            if (visual != null)
-                visual.ApplyWeapon(weapon.EquipmentitemName);
+            FindFirstObjectByType<PlayerVisual>()?.ApplyWeapon(weapon.EquipmentitemName);
         }
 
         if (data.player.equippedArmor != null && !string.IsNullOrEmpty(data.player.equippedArmor.itemName))
         {
+            var e = data.player.equippedArmor;
             var armor = new ItemEquipment
             {
-                EquipmentitemName = data.player.equippedArmor.itemName,
-                Equipmenttype = (ShopUI.ItemType)data.player.equippedArmor.type,
-                EquipmentstatBonus = data.player.equippedArmor.statBonus
+                EquipmentitemName = e.itemName,
+                Equipmenttype = (ShopUI.ItemType)e.type,
+                EquipmentstatBonus = e.statBonus,
+                icon = string.IsNullOrEmpty(e.iconName)
+                    ? null
+                    : Resources.Load<Sprite>($"ItemIcon/Armor/{e.iconName}")
             };
             inv.EquipItem(armor, ShopUI.ItemType.Armor);
-
-            var visual = FindFirstObjectByType<PlayerVisual>();
-            if (visual != null)
-                visual.ApplyArmor(armor.EquipmentitemName);
+            FindFirstObjectByType<PlayerVisual>()?.ApplyArmor(armor.EquipmentitemName);
         }
 
 
