@@ -5007,7 +5007,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 100
   m_TargetDisplay: 0
 --- !u!224 &1511422898
 RectTransform:
@@ -7270,6 +7270,10 @@ PrefabInstance:
       propertyPath: hudMediumPotionText
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 1545835991179247440, guid: d4d4233518792c248a57e8108c0f95d9, type: 3}
+      propertyPath: stageAnnouncementPrefab
+      value: 
+      objectReference: {fileID: 8433495508531585594, guid: 696c470af887f9b4f88833b687ba4468, type: 3}
     - target: {fileID: 8672287911162582391, guid: d4d4233518792c248a57e8108c0f95d9, type: 3}
       propertyPath: m_Name
       value: UIManager

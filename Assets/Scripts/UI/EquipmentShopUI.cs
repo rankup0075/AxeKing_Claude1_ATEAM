@@ -86,6 +86,18 @@ public class EquipmentShopUI : MonoBehaviour
 
     void CreateShopItems()
     {
+        foreach (Transform child in weaponContainer) Destroy(child.gameObject);      //  추가
+        foreach (Transform child in armorContainer) Destroy(child.gameObject);       //  추가
+        ownedItems.Clear();
+
+        if (playerInventory != null)
+        {
+            foreach (var w in playerInventory.weaponStorage)
+                ownedItems.Add(w.EquipmentitemName);
+            foreach (var a in playerInventory.armorStorage)
+                ownedItems.Add(a.EquipmentitemName);
+        }
+
         foreach (var item in shopItems)
         {
             GameObject ui = Instantiate(itemPrefab);
@@ -96,16 +108,29 @@ public class EquipmentShopUI : MonoBehaviour
             var descText = ui.transform.Find("DescriptionText").GetComponent<TextMeshProUGUI>();
             var image = ui.transform.Find("ItemImage").GetComponent<Image>();
             var ownedLabel = ui.transform.Find("StatusText").gameObject;
+            var button = ui.GetComponent<Button>();                    // ★ 추가
 
             nameText.text = item.itemName;
             priceText.text = $"{item.price:N0} G";
             descText.text = item.description;
             image.sprite = item.icon;
 
-            ownedLabel.SetActive(false);
+            bool alreadyOwned =
+            playerInventory.weaponStorage.Exists(w => w.EquipmentitemName == item.itemName) ||
+            playerInventory.armorStorage.Exists(a => a.EquipmentitemName == item.itemName);
 
-            var captured = item;
-            ui.GetComponent<Button>().onClick.AddListener(() => SelectItem(captured, ui));
+            if (alreadyOwned)
+            {
+                ownedLabel.SetActive(true);
+                button.interactable = false;
+                ownedItems.Add(item.itemName);
+            }
+            else
+            {
+                ownedLabel.SetActive(false);
+                var captured = item;
+                button.onClick.AddListener(() => SelectItem(captured, ui));
+            }
         }
     }
 

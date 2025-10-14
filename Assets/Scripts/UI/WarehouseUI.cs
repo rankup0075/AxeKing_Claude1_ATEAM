@@ -133,8 +133,13 @@ public class WarehouseUI : MonoBehaviour
             obj.transform.Find("ItemImage").GetComponent<Image>().sprite = item.icon;
 
             var statusText = obj.transform.Find("StatusText").GetComponent<TextMeshProUGUI>();
-            bool isEquipped = (type == ShopUI.ItemType.Weapon && playerInventory.currentWeapon == item) ||
-                              (type == ShopUI.ItemType.Armor && playerInventory.currentArmor == item);
+            bool isEquipped = (type == ShopUI.ItemType.Weapon &&
+                   playerInventory.currentWeapon != null &&
+                   playerInventory.currentWeapon.EquipmentitemName == item.EquipmentitemName)
+               || (type == ShopUI.ItemType.Armor &&
+                   playerInventory.currentArmor != null &&
+                   playerInventory.currentArmor.EquipmentitemName == item.EquipmentitemName);
+
 
             statusText.text = isEquipped ? "장착중" : "";
             statusText.gameObject.SetActive(true);
@@ -175,9 +180,20 @@ public class WarehouseUI : MonoBehaviour
         playerInventory.EquipItem(selectedItem, selectedItem.Equipmenttype);
         Debug.Log($"[Warehouse] {selectedItem.EquipmentitemName} 장착 완료");
 
-        // 장착 패널 갱신
+        // === 외형 반영 추가 ===
+        var visual = FindFirstObjectByType<PlayerVisual>();
+        if (visual != null)
+        {
+            if (selectedItem.Equipmenttype == ShopUI.ItemType.Weapon)
+                visual.ApplyWeapon(selectedItem.EquipmentitemName);
+            else if (selectedItem.Equipmenttype == ShopUI.ItemType.Armor)
+                visual.ApplyArmor(selectedItem.EquipmentitemName);
+        }
+
+        // === 스탯 갱신 ===
         RefreshEquippedPanel();
         ShowItems(currentTab);
+        RefreshStats();
 
         equipButton.interactable = false;
         unequipButton.interactable = true;
@@ -187,16 +203,21 @@ public class WarehouseUI : MonoBehaviour
     {
         if (selectedItem == null) return;
 
-        if (currentTab == ShopUI.ItemType.Weapon && playerInventory.currentWeapon == selectedItem)
+        if (currentTab == ShopUI.ItemType.Weapon && playerInventory.currentWeapon != null && playerInventory.currentWeapon.EquipmentitemName == selectedItem.EquipmentitemName)
         {
             playerInventory.EquipItem(null, ShopUI.ItemType.Weapon);
+            var visual = FindFirstObjectByType<PlayerVisual>();
+            if (visual != null) visual.ApplyWeapon(null);
             Debug.Log($"[Warehouse] {selectedItem.EquipmentitemName} 무기 해제 완료");
         }
-        else if (currentTab == ShopUI.ItemType.Armor && playerInventory.currentArmor == selectedItem)
+        else if (currentTab == ShopUI.ItemType.Armor && playerInventory.currentArmor != null && playerInventory.currentArmor.EquipmentitemName == selectedItem.EquipmentitemName)
         {
             playerInventory.EquipItem(null, ShopUI.ItemType.Armor);
+            var visual = FindFirstObjectByType<PlayerVisual>();
+            if (visual != null) visual.ApplyArmor(null);
             Debug.Log($"[Warehouse] {selectedItem.EquipmentitemName} 방어구 해제 완료");
         }
+
 
         selectedItem = null;
         RefreshEquippedPanel();

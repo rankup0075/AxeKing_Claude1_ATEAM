@@ -247,6 +247,10 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 879583673320216022, guid: ecf3904b73d18814282dfd84425b61e4, type: 3}
+      propertyPath: portalType
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 879583673320216022, guid: ecf3904b73d18814282dfd84425b61e4, type: 3}
       propertyPath: spawnPoint
       value: 
       objectReference: {fileID: 1743371918}

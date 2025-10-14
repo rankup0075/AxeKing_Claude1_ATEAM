@@ -632,6 +632,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 879583673320216022, guid: ecf3904b73d18814282dfd84425b61e4, type: 3}
+      propertyPath: portalType
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 879583673320216022, guid: ecf3904b73d18814282dfd84425b61e4, type: 3}
       propertyPath: spawnPoint
       value: 
       objectReference: {fileID: 0}
@@ -6224,7 +6228,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Portal
   targetScene: Stage101_R1
   portalID: Stage101_R1_R2
-  portalType: 7
+  portalType: 8
   isUnlocked: 1
   portalDirection: 1
   potionShopUI: {fileID: 0}

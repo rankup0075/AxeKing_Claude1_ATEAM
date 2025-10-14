@@ -50,6 +50,8 @@ public class UIManager : MonoBehaviour
     public GameObject gameOverPanel;
     public GameObject stageCompletePanel;
 
+    [SerializeField] private GameObject stageAnnouncementPrefab; //스테이지 보여주는 화면
+
     private bool isPaused = false;
 
     [Header("Settings (In-Game Only)")]
@@ -73,6 +75,18 @@ public class UIManager : MonoBehaviour
         {
             Destroy(gameObject);
             return;
+        }
+
+        if (StageAnnouncementUI.Instance == null && stageAnnouncementPrefab != null)
+        {
+            Instantiate(stageAnnouncementPrefab);
+        }
+
+        // === 이벤트 재등록 강제 ===
+        if (StageAnnouncementUI.Instance != null)
+        {
+            StageAnnouncementUI.Instance.enabled = false;
+            StageAnnouncementUI.Instance.enabled = true;
         }
     }
 
@@ -150,7 +164,12 @@ public class UIManager : MonoBehaviour
         if (player != null)
         {
             var controller = player.GetComponent<PlayerController>();
-            if (controller != null) controller.canMove = true;
+            if (controller != null)
+            {
+                controller.canMove = true;
+                controller.canControl = true;
+            }
+            
         }
     }
 

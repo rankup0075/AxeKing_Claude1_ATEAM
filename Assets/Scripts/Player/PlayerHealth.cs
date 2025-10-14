@@ -11,12 +11,14 @@ public class PlayerHealth : MonoBehaviour
 
     void Start()
     {
-        currentHealth = maxHealth;
-        UIManager.Instance.UpdateHealthBar(currentHealth, maxHealth);
+        // 저장된 값이 없을 때만 초기화
+        if (currentHealth <= 0)
+            currentHealth = maxHealth;
 
-        // [NEW] HUD도 동기화
+        UIManager.Instance.UpdateHealthBar(currentHealth, maxHealth);
         UIManager.Instance.UpdateHUDHealth(currentHealth, maxHealth);
     }
+
 
     public void TakeDamage(int damage)
     {

@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.IO;
+using System.Collections;
 
 [System.Serializable]
 public class SlotInfoUI
@@ -92,9 +93,21 @@ public class SaveSelectUI : MonoBehaviour
             // 로드 모드
             SaveLoadManager.Instance.currentSlot = slot;
             gameObject.SetActive(false);
-            // 메인메뉴에서 게임 씬 로드 → 로드 완료 시 SaveLoadManager.LoadGame() 호출
+
             MenuManager mm = FindFirstObjectByType<MenuManager>();
-            if (mm != null) mm.ContinueFromSlot(slot);
+            if (mm != null)
+            {
+                // 자동저장 처리
+                if (slot == 0)
+                {
+                    SaveLoadManager.Instance.currentSlot = -1; // 자동저장 구분용
+                    mm.StartCoroutine(mm.LoadSceneAndLoadGame(mm.firstSceneName, true, true)); // 자동저장 전용 호출
+                }
+                else
+                {
+                    mm.ContinueFromSlot(slot);
+                }
+            }
             return;
         }
 
@@ -131,16 +144,24 @@ public class SaveSelectUI : MonoBehaviour
         confirmText.text = "저장 완료!";
         yesButton.gameObject.SetActive(false);
         noButton.gameObject.SetActive(false);
+        StartCoroutine(CloseAfterDelay());   // 그대로 호출
+    }
 
-        Invoke(nameof(AfterSaved), 1.0f);
+    private IEnumerator CloseAfterDelay()
+    {
+        yield return new WaitForSecondsRealtime(1f); // ← 핵심
+        AfterSaved();
     }
 
     void AfterSaved()
     {
         yesButton.gameObject.SetActive(true);
         noButton.gameObject.SetActive(true);
-        CloseSelf();
+        confirmPanel.SetActive(false);
+        saveSlotContainer.SetActive(true);
+        UpdateSlotInfoDisplay();
     }
+
 
     void UpdateSlotInfoDisplay()
     {
@@ -186,4 +207,44 @@ public class SaveSelectUI : MonoBehaviour
         }
     }
 
+
+
+    public void OnResetClick(int slot)
+    {
+        pendingSlot = slot;
+        confirmText.text = $"파일 {slot}을 초기화하겠습니까?";
+        saveSlotContainer.SetActive(false);
+        confirmPanel.SetActive(true);
+
+        yesButton.onClick.RemoveAllListeners();
+        noButton.onClick.RemoveAllListeners();
+        yesButton.onClick.AddListener(() => ConfirmReset(true));
+        noButton.onClick.AddListener(() => ConfirmReset(false));
+    }
+
+    void ConfirmReset(bool accepted)
+    {
+        if (!accepted)
+        {
+            confirmPanel.SetActive(false);
+            saveSlotContainer.SetActive(true);
+            return;
+        }
+
+        SaveLoadManager.Instance.ResetSlot(pendingSlot);
+        confirmText.text = $"파일 {pendingSlot}을 초기화했습니다.";
+
+        yesButton.gameObject.SetActive(false);
+        noButton.gameObject.SetActive(false);
+        Invoke(nameof(AfterReset), 2.0f);
+    }
+
+    void AfterReset()
+    {
+        yesButton.gameObject.SetActive(true);
+        noButton.gameObject.SetActive(true);
+        confirmPanel.SetActive(false);
+        saveSlotContainer.SetActive(true);
+        UpdateSlotInfoDisplay();
+    }
 }

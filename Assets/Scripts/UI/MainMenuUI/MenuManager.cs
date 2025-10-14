@@ -94,13 +94,16 @@ public class MenuManager : MonoBehaviour
     public void ContinueFromSlot(int slot)
     {
         SaveLoadManager.Instance.currentSlot = slot;
-        StartCoroutine(LoadSceneAndLoadGame(firstSceneName, true));
+        bool isAuto = (slot == 0); // 0번이면 자동저장
+        StartCoroutine(LoadSceneAndLoadGame(firstSceneName, true, isAuto));
     }
+
+
 
     // ===============================
     // 씬 로드 + 세이브 데이터 적용
     // ===============================
-    private IEnumerator LoadSceneAndLoadGame(string sceneName, bool loadSave)
+    public   IEnumerator LoadSceneAndLoadGame(string sceneName, bool loadSave, bool isAuto = false)
     {
         DontDestroyOnLoad(gameObject);
 
@@ -142,7 +145,12 @@ public class MenuManager : MonoBehaviour
         Debug.Log("[MenuManager] 씬 로드 완료, LoadGame 호출 직전");
 
         if (loadSave)
-            SaveLoadManager.Instance?.LoadGame();
+        {
+            if (isAuto)
+                SaveLoadManager.Instance.LoadAutoSave();
+            else
+                SaveLoadManager.Instance.LoadGame();
+        }
 
         // === 1초 정도 더 보여주고 나서 MenuManager 파괴 ===
         yield return new WaitForSeconds(1f);

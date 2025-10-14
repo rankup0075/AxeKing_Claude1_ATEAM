@@ -86,6 +86,13 @@ public class Portal : MonoBehaviour
         if (!playerInRange || !isUnlocked || busy) return;
         busy = true;
 
+        var player = PlayerController.Instance;
+        if (player != null)
+        {
+            player.canControl = false;
+            player.StopImmediately();
+        }
+
         switch (portalType)
         {
             case PortalType.SceneTransition:
@@ -157,6 +164,8 @@ public class Portal : MonoBehaviour
                 busy = false;
                 break;
         }
+
+        busy = false;
     }
 
     void TransitionToScene()
