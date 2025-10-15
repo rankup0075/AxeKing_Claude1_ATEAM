@@ -69,6 +69,7 @@ public class PlayerInventory : MonoBehaviour
 
         UIManager.Instance?.UpdateHUDPotions(smallPotions, mediumPotions, largePotions);
 
+        GameManager.Instance?.SavePlayerData();
     }
 
     // 아이템 제거

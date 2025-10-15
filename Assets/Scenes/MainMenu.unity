@@ -660,8 +660,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: AxeKing
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 1b356b5daebda32499487417d7f51bac, type: 2}
-  m_sharedMaterial: {fileID: 2655526217342710958, guid: 1b356b5daebda32499487417d7f51bac, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: eb9d1e1aa4307754eb90b92e3b12b54b, type: 2}
+  m_sharedMaterial: {fileID: -660261800089067875, guid: eb9d1e1aa4307754eb90b92e3b12b54b, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []

@@ -69,6 +69,8 @@ public class PlayerController : MonoBehaviour
         animator = GetComponent<Animator>();
         playerHealth = GetComponent<PlayerHealth>();
         inventory = GetComponent<PlayerInventory>();
+        if (gameObject.tag != "Player")
+            gameObject.tag = "Player";
     }
 
     void Update()
